@@ -153,7 +153,7 @@ class ServicePPPOE(Service):
                     
                 self.log('PPPOE: {0} ---> PADI'.format(self.mac))
                 
-                padi = Ether(src=self.get_mac_bytes(),dst="ff:ff:ff:ff:ff:ff")/PPPoED(version=1,type=1,code="PADI",sessionid=0,len=0)
+                padi = Ether(src=self.get_mac_bytes(),dst="ff:ff:ff:ff:ff:ff")/PPPoED(version=1,type=1,code=PPPOE.PADI,sessionid=0,len=0)
 
                 # send a discover message
                 yield pipe.async_tx_pkt(padi)
