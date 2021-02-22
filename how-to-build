@@ -1,0 +1,14 @@
+# How to build
+
+cd linux
+./b configure
+./b build
+
+cd linux-dpdk
+./b configure --new-memory
+./b build
+
+cd ./scripts
+./t-rex-64 -i
+python3 ./automation/trex_control_plane/interactive/trex/examples/stl/stl_pppoe_example.py # runs the ppp example script
+
