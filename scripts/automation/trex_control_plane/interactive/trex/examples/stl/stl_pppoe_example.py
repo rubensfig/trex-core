@@ -106,13 +106,13 @@ class DHCPTest(object):
         wait_for_key()
         
         try:
+            self.c.stop_capture(self.capture['id'], '/tmp/port_0_rx.pcap')
             # move back to service mode for releasing DHCPs
             self.c.set_service_mode(ports = self.port)
             self.release_dhcp_clients(clients)
             
         finally:
             self.c.set_service_mode(ports = self.port, enabled = False)
-            self.c.stop_capture(self.capture['id'], '/tmp/port_0_rx.pcap')
 
         
         
