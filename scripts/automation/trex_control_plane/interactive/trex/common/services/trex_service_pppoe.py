@@ -156,12 +156,12 @@ class ServicePPPOE(Service):
                     
                 self.log('PPPOE: {0} ---> PADI'.format(self.mac))
                 
-                 pkt = Ether(src=self.get_mac_bytes(),dst="ff:ff:ff:ff:ff:ff")
-                 if self.s_tag:
-                     pkt = pkt / Dot1Q(vlan=self.s_tag)
-                 if self.c_tag:
-                     pkt = pkt / Dot1Q(vlan=self.c_tag)
-                 padi = pkt / PPPoED(version=1, type=1, code=PPPOEParser.PADI, sessionid=0, len=0)
+                pkt = Ether(src=self.get_mac_bytes(),dst="ff:ff:ff:ff:ff:ff")
+                if self.s_tag:
+                    pkt = pkt / Dot1Q(vlan=self.s_tag)
+                if self.c_tag:
+                    pkt = pkt / Dot1Q(vlan=self.c_tag)
+                padi = pkt / PPPoED(version=1, type=1, code=PPPOEParser.PADI, sessionid=0, len=0)
 
                 # send a discover message
                 yield pipe.async_tx_pkt(padi)
