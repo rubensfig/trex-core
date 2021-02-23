@@ -60,7 +60,7 @@ class DHCPTest(object):
     def setup (self, count):
             
         # phase one - service context
-        self.c.set_service_mode(ports = self.port)
+        self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
         
         try:
             # create DHCP clients

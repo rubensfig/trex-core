@@ -9,6 +9,6 @@ cd linux-dpdk
 ./b build
 
 cd ./scripts
-./t-rex-64 -i
+./t-rex-64 -i --software
 python3 ./automation/trex_control_plane/interactive/trex/examples/stl/stl_pppoe_example.py # runs the ppp example script
 
