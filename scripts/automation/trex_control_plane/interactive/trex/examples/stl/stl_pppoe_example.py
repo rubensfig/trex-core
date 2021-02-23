@@ -61,6 +61,7 @@ class DHCPTest(object):
             
         # phase one - service context
         self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
+        self.capture = self.c.start_capture(rx_ports = 0, limit = 100, mode = 'fixed')
         
         try:
             # create DHCP clients
@@ -83,7 +84,13 @@ class DHCPTest(object):
         streams = []
         for client in clients:
             record = client.get_record()
-            base_pkt = Ether(src=record.client_mac,dst=record.server_mac)/PPPoE(sessionid=record.sid)/PPP(proto="Internet Protocol version 4")/IP(src=record.client_ip,dst='8.8.8.8')/UDP()
+            base_pkt = Ether(src=record.client_mac, dst=record.server_mac) / \
+                       Dot1AD(record.s_tag) / \
+                       Dot1Q(record.c_tag) / \
+                       PPPoE(sessionid=record.sid) / \
+                       PPP(proto="Internet Protocol version 4") / \
+                       IP(src=record.client_ip, dst='8.8.8.8') / \
+                       UDP()
             pkt = STLPktBuilder(pkt = base_pkt, vm = [])
             
             streams.append(STLStream(packet = pkt, mode = STLTXCont(pps = 1000)))
@@ -105,11 +112,16 @@ class DHCPTest(object):
             
         finally:
             self.c.set_service_mode(ports = self.port, enabled = False)
+            self.c.stop_capture(self.capture['id'], '/tmp/port_0_rx.pcap')
 
         
         
     def create_dhcp_clients (self, count):
-        dhcps = [ServicePPPOE(mac = random_mac(), verbose_level = ServicePPPOE.ERROR) for _ in range(count)]
+        s_tag = 110
+        dhcps = [ServicePPPOE(mac=random_mac(),
+                              verbose_level=ServicePPPOE.ERROR,
+                              s_tag=s_tag,
+                              c_tag=(100 + i)) for i in range(count)]
 
         # execute all the registered services
         print('\n*** step 1: starting DHCP acquire for {} clients ***\n'.format(len(dhcps)))

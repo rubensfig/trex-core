@@ -22,7 +22,9 @@ class PPPOEParser(FastParser):
     PADT = 0xa7
     
     def __init__ (self):
-        base_pkt = Ether(dst="ff:ff:ff:ff:ff:ff")/PPPoED(version=1,type=1,code=PADI,sessionid=0,len=0)/PPPoED_Tags()
+        base_pkt = Ether(dst="ff:ff:ff:ff:ff:ff") / \
+                   PPPoED(version=1, type=1, code=PADI, sessionid=0, len=0) / \
+                   PPPoED_Tags()
 
         FastParser.__init__(self, base_pkt)
 

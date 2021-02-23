@@ -70,7 +70,7 @@ class ServicePPPOE(Service):
     # PPPOE states
     INIT, SELECTING, REQUESTING, LCP, AUTH, IPCP, BOUND = range(7)
     
-    def __init__ (self, mac, verbose_level = Service.ERROR):
+    def __init__ (self, mac, verbose_level = Service.ERROR, s_tag=None, c_tag=None):
 
         # init the base object
         super(ServicePPPOE, self).__init__(verbose_level)
@@ -94,11 +94,14 @@ class ServicePPPOE(Service):
         self.lcp_our_negotiated = False
         self.lcp_peer_negotiated = False
 
-         # States for IPCP
+        # States for IPCP
         self.ipcp_our_sent = False
         self.ipcp_our_negotiated = False
         self.ipcp_peer_negotiated = False
     
+        # QinQ VLAN tags
+        self.s_tag = s_tag
+        self.c_tag = c_tag
     def is_prom_required(self):
         return True
     
@@ -153,7 +156,12 @@ class ServicePPPOE(Service):
                     
                 self.log('PPPOE: {0} ---> PADI'.format(self.mac))
                 
-                padi = Ether(src=self.get_mac_bytes(),dst="ff:ff:ff:ff:ff:ff")/PPPoED(version=1,type=1,code=PPPOE.PADI,sessionid=0,len=0)
+                 pkt = Ether(src=self.get_mac_bytes(),dst="ff:ff:ff:ff:ff:ff")
+                 if self.s_tag:
+                     pkt = pkt / Dot1Q(vlan=self.s_tag)
+                 if self.c_tag:
+                     pkt = pkt / Dot1Q(vlan=self.c_tag)
+                 padi = pkt / PPPoED(version=1, type=1, code=PPPOEParser.PADI, sessionid=0, len=0)
 
                 # send a discover message
                 yield pipe.async_tx_pkt(padi)
@@ -240,7 +248,11 @@ class ServicePPPOE(Service):
                 # send the request
                 if not self.lcp_our_negotiated:
                     self.log("PPPOE: {0} ---> LCP CONF REQ".format(self.mac))
-                    lcp_req = Ether(src=self.get_mac_bytes(),dst=self.ac_mac)/PPPoE(sessionid=self.session_id)/PPP(proto='Link Control Protocol')/PPP_LCP_Configure(code='Configure-Request',options=[PPP_LCP_MRU_Option(max_recv_unit=1492)/PPP_LCP_Magic_Number_Option(magic_number=0x13371337)])
+                    lcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
+                              PPPoE(sessionid=self.session_id) / \
+                              PPP(proto='Link Control Protocol') / \
+                              PPP_LCP_Configure(code='Configure-Request', options=[PPP_LCP_MRU_Option(max_recv_unit=1492) / \
+                              PPP_LCP_Magic_Number_Option(magic_number=0x13371337)])
                     # lcp_req.show2()
                     yield pipe.async_tx_pkt(lcp_req)
                 
@@ -276,7 +288,10 @@ class ServicePPPOE(Service):
 
                 # send the request
                 self.log("PPPOE: {0} ---> PAP CONF REQ".format(self.mac))
-                lcp_req = Ether(src=self.get_mac_bytes(),dst=self.ac_mac)/PPPoE(sessionid=self.session_id)/PPP(proto='Password Authentication Protocol')/PPP_PAP_Request(code='Authenticate-Request',username='1',password='1')
+                lcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
+                          PPPoE(sessionid=self.session_id) / \
+                          PPP(proto='Password Authentication Protocol') / \
+                          PPP_PAP_Request(code='Authenticate-Request', username='1', password='1')
                 # lcp_req.show2()
                 yield pipe.async_tx_pkt(lcp_req)
                 
@@ -300,7 +315,10 @@ class ServicePPPOE(Service):
                 # send the request
                 if not self.ipcp_our_negotiated:
                     self.log("PPPOE: {0} ---> IPCP CONF REQ".format(self.mac))
-                    ipcp_req = Ether(src=self.get_mac_bytes(),dst=self.ac_mac)/PPPoE(sessionid=self.session_id)/PPP(proto='Internet Protocol Control Protocol')/PPP_IPCP(code='Configure-Request',options=[PPP_IPCP_Option_IPAddress(data=self.ip)])
+                    ipcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
+                               PPPoE(sessionid=self.session_id) / \
+                               PPP(proto='Internet Protocol Control Protocol') / \
+                               PPP_IPCP(code='Configure-Request', options=[PPP_IPCP_Option_IPAddress(data=self.ip)])
                     # ipcp_req.show2()
                     yield pipe.async_tx_pkt(ipcp_req)
                 
@@ -381,6 +399,8 @@ class ServicePPPOE(Service):
             self.server_ip = parent.ac_ip
             self.client_ip = parent.ip
             self.sid = parent.session_id
+            self.s_tag = parent.s_tag
+            self.c_tag = parent.c_tag
                         
             
         def __str__ (self):
