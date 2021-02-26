@@ -219,7 +219,7 @@ class ServicePPPOE(Service):
                     ret = pars.parse(pkt)
                     print(ret.code)
 
-                    if offer.code == PPPOEParser.PADO:
+                    if ret.code == PPPOEParser.PADO:
                         services.append( offer )
                 
                 if not services:
