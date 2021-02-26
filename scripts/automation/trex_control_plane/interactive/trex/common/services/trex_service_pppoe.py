@@ -27,7 +27,6 @@ import struct
 import socket
 import re
            
-parser = PPPOEParser()
 def ipv4_num_to_str (num):
     return socket.inet_ntoa(struct.pack('!I', num))
     
