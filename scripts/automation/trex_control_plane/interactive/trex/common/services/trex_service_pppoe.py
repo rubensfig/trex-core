@@ -168,7 +168,7 @@ class ServicePPPOE(Service):
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(4)
                 pkts = [pkt['pkt'] for pkt in pkts]
-                offers = [PPPOEParser.parse(pkt) for pkt in pkts]
+                offers = [PPPOEParser(pkt) for pkt in pkts]
                 
                 # filter out the offer responses
                 #offers = []
