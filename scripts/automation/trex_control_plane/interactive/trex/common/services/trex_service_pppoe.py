@@ -191,7 +191,7 @@ class ServicePPPOE(Service):
                         offers.append( offer )
                 
                 if not offers:
-                    print('PPPOE: {0} *** timeout on offers - retries left: {1}'.format(self.mac, self.retries), level = Service.ERROR)
+                    print('PPPOE: {0} *** timeout on offers - retries left: {1}'.format(self.mac, self.retries))
                     self.state = 'INIT'
                     continue
                     
