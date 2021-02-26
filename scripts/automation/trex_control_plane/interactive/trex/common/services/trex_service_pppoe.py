@@ -203,7 +203,7 @@ class ServicePPPOE(Service):
                 self.log('PPPOE: {0} ---> PADR'.format(self.mac))
 
                 padr = Ether(src=self.get_mac(),dst=self.ac_mac)/PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
-                padr[PPPoED_Tags] = self.tags
+                padr.tag_list = self.tags
                 print(padr)
                 
                 # send the request
