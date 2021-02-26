@@ -101,7 +101,7 @@ class ServicePPPOE(Service):
         return True
                 
     def get_filter_type (self):
-        pass
+        return ServiceFilterPPPOE
 
 
     def get_mac (self):
