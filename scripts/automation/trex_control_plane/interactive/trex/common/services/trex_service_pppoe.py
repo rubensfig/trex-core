@@ -172,13 +172,7 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
-                    offer = Ether(pkt)/Dot1Q(pkt)/Dot1Q(pkt)
-                    print("OFFER ", offer.show())
-                    print("PACKET ", offer.show())
-                    if PPPoED not in offer:
-                        continue
-                    if offer[PPPoED].code == PPPoED.code.s2i[PPPOEParser.PADI]:
-                        offers.append( offer )
+                    print(pkt)
                     self.state = 'INIT'
                     continue
                 
