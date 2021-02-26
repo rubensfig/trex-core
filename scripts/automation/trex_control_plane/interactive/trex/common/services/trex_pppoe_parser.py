@@ -23,6 +23,7 @@ class PPPOEParser(FastParser):
     
     def __init__ (self):
         base_pkt = Ether(dst="ff:ff:ff:ff:ff:ff") / \
+                   Dot1Q(vlan=100) / Dot1Q(vlan=110) /
                    PPPoED(version=1, type=1, code=self.PADI, sessionid=0, len=0) / \
                    PPPoED_Tags()
 
