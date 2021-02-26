@@ -154,7 +154,7 @@ class ServicePPPOE(Service):
                 if self.retries <= 0:
                     break
                     
-                self.log('PPPOE: {0} ---> PADI'.format(self.mac))
+                print('PPPOE: {0} ---> PADI'.format(self.mac))
                 
                 pkt = Ether(src=self.get_mac_bytes(),dst="ff:ff:ff:ff:ff:ff")
                 if self.s_tag:
@@ -176,6 +176,9 @@ class ServicePPPOE(Service):
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt['pkt'] for pkt in pkts]
+
+                for i in pkts:
+                    print(i)
                 
                 # filter out the offer responses
                 offers = []
