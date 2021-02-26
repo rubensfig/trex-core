@@ -208,7 +208,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(padr)
                 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(3)
+                pkts = yield pipe.async_wait_for_pkt(4)
                 pkts = [pkt['pkt'] for pkt in pkts]
                 
                 # filter out the offer responses
@@ -216,7 +216,7 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     pars = PPPOEParser()
                     servs = pars.parse(pkt)
-                    print(servs.code)
+                    print("PADS", servs.code)
 
                     if servs.code == PPPOEParser.PADS:
                         services.append( servs )
