@@ -239,6 +239,7 @@ class ServiceCtx(object):
 
         # for each packet - try to forward to each service until we hit
         for pkt in pkts:
+            print(pkt)
             pkt_bin   = pkt['binary']
             rx_ts     = pkt['ts']
             
