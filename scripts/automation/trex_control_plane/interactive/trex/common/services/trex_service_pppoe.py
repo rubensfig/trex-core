@@ -45,6 +45,7 @@ class ServiceFilterPPPOE(ServiceFilter):
         self.services = defaultdict(list)
         
     def add (self, service):
+        pass
         print('here {0}'.format(service.get_mac()))
         self.services[service.get_mac()].append(service)
         
@@ -56,7 +57,7 @@ class ServiceFilterPPPOE(ServiceFilter):
         return self.services.get(mac, [])
 
     def get_bpf_filter (self):
-        return 'pppoed or (pppoes and not ( ppp proto 0x0021 or ppp proto 0x0057 ) )'
+        return 'pppoed'
     
     
 ################### internal ###################
@@ -98,10 +99,9 @@ class ServicePPPOE(Service):
         self.c_tag = c_tag
     def is_prom_required(self):
         return True
-    
                 
     def get_filter_type (self):
-        return ServiceFilterPPPOE
+        pass
 
 
     def get_mac (self):
