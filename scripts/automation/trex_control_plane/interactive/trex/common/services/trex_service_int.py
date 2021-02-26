@@ -235,7 +235,6 @@ class ServiceCtx(object):
 
     def _fetch_rx_pkts_per_filter (self, f):
         pkts = []
-        print(f['capture_id'])
         self.client.fetch_capture_packets(f['capture_id'], pkts)
 
         # for each packet - try to forward to each service until we hit
