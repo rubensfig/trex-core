@@ -176,7 +176,6 @@ class ServicePPPOE(Service):
                     print(offer.show())
                     if PPPoED not in offer:
                         continue
-                    print(offer[PPPoED.code])
                     if offer[PPPoED].code == PPPoED.code.s2i[PPPOEParser.PADI]:
                         offers.append( offer )
                 
