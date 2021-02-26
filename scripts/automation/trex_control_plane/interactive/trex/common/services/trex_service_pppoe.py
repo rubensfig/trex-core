@@ -173,7 +173,9 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
-                    pars = FastParser(pkt)
+
+                    pars = PPPOEParser()
+                    pars.parse(pkt)
                     print(pars)
 
                     self.state = 'INIT'
