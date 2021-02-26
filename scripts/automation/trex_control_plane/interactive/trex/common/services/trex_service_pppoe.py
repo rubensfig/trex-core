@@ -173,15 +173,12 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
-
-                    eth_par = Ether(pkt)
-                    print(eth_par)
                     pars = PPPOEParser()
                     ret = pars.parse(pkt)
                     print(ret.code)
 
-                    self.state = 'INIT'
-                    continue
+                    if ret.code == PPPOEParser.PADO:
+                        offers.append(ret)
                 
                 if not offers:
                     print('PPPOE: {0} *** timeout on offers - retries left: {1}'.format(self.mac, self.retries))
