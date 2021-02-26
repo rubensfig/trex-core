@@ -36,13 +36,13 @@ class PPPoETest(object):
             self.c.reset(ports = self.port) # Force acquire ports, stop the traffic, remove all streams and clear stats
             self.c.set_port_attr(self.port, promiscuous = True)
             self.ctx  = self.c.create_service_ctx(port = self.port)
-            self.capture_id = self.c.start_capture(tx_ports = 0, rx_ports = 0, mode = 'fixed')
+            # self.capture_id = self.c.start_capture(tx_ports = 0, rx_ports = 0, mode = 'fixed')
             
             # create clients
             clients = self.setup(count)
             if not clients:
                 print('\nno clients have sucessfully registered...exiting...\n')
-                self.c.stop_capture(self.capture_id['id'], '/tmp/port_0_rx.pcap')
+                # self.c.stop_capture(self.capture_id['id'], '/tmp/port_0_rx.pcap')
                 exit(1)
                 
             # inject traffic
