@@ -27,7 +27,7 @@ class PPPoETest(object):
     def __init__ (self, port):
         self.port = port
         self.c    = STLClient()
-        self.c.set_verbose("debug")
+        # self.c.set_verbose("")
         
     def run (self, count):
             

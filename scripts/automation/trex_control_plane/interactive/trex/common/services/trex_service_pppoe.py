@@ -177,8 +177,8 @@ class ServicePPPOE(Service):
                     eth_par = Ether(pkt)
                     print(eth_par)
                     pars = PPPOEParser()
-                    pars.parse(pkt)
-                    print(pars['code'])
+                    ret = pars.parse(pkt)
+                    print(ret)
 
                     self.state = 'INIT'
                     continue
