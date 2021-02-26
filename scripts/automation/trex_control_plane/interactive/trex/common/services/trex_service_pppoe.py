@@ -56,7 +56,7 @@ class ServiceFilterPPPOE(ServiceFilter):
         return self.services.get(mac, [])
 
     def get_bpf_filter (self):
-        return ''
+        return 'pppoed'
     
     
 ################### internal ###################
