@@ -61,7 +61,7 @@ class DHCPTest(object):
             
         # phase one - service context
         self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
-        self.capture = self.c.start_capture(rx_ports = 0, limit = 100, mode = 'fixed')
+        self.capture = self.c.start_capture(rx_ports = 0, mode = 'fixed')
         
         try:
             # create DHCP clients
@@ -106,7 +106,7 @@ class DHCPTest(object):
         wait_for_key()
         
         try:
-            self.c.stop_capture(self.capture['id'], '/tmp/port_0_rx.pcap')
+            self.c.stop_capture(self.capture['0'], '/tmp/port_0_rx.pcap')
             # move back to service mode for releasing DHCPs
             self.c.set_service_mode(ports = self.port)
             self.release_dhcp_clients(clients)
