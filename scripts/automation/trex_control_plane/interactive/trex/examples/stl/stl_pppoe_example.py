@@ -64,17 +64,13 @@ class DHCPTest(object):
         self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
         self.capture_id = self.c.start_capture(rx_ports = 0, mode = 'fixed')
         
-        try:
-            # create DHCP clients
-            clients = self.create_dhcp_clients(count)
-            if not clients:
-                return
+        # create DHCP clients
+        clients = self.create_dhcp_clients(count)
+        if not clients:
+            return
+        
+        return clients
             
-            return clients
-            
-        finally:
-            self.c.stop_capture(self.capture_id, '/tmp/port_0_rx.pcap')
-            self.c.set_service_mode(ports = self.port, enabled = False)
         
             
     def inject (self, clients):
@@ -107,6 +103,8 @@ class DHCPTest(object):
         print('\n\nPress Return to release all DHCP clients...')
         wait_for_key()
         
+        print(self.capture_id)
+        self.c.stop_capture(self.capture_id, '/tmp/port_0_rx.pcap')
         try:
             # move back to service mode for releasing DHCPs
             self.c.set_service_mode(ports = self.port)
