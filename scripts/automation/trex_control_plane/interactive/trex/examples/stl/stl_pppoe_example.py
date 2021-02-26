@@ -43,7 +43,7 @@ class DHCPTest(object):
             if not clients:
                 print('\nno clients have sucessfully registered...exiting...\n')
                 print(self.capture_id)
-                self.c.stop_capture(self.capture_id, '/tmp/port_0_rx.pcap')
+                self.c.stop_capture(self.capture_id['id'], '/tmp/port_0_rx.pcap')
                 exit(1)
                 
             # inject traffic
