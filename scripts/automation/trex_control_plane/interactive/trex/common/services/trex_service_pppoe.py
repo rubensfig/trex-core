@@ -13,6 +13,7 @@ Author:
 """
 from ...common.services.trex_service import Service, ServiceFilter
 from .trex_pppoe_parser import PPPOEParser
+from .trex_service_fast_parser import FastParser
 
 from scapy.layers.dhcp import DHCP, BOOTP
 from scapy.layers.l2 import Ether
@@ -172,7 +173,9 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
-                    print(pkt)
+                    pars = FastParser(pkt)
+                    print(pars)
+
                     self.state = 'INIT'
                     continue
                 
