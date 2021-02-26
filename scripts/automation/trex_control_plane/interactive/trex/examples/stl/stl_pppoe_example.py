@@ -23,7 +23,7 @@ def random_mac_range (count):
     return [random_mac() for _ in range(count)]
 
 
-class DHCPTest(object):
+class PPPoETest(object):
     def __init__ (self, port):
         self.port = port
         self.c    = STLClient()
@@ -36,14 +36,12 @@ class DHCPTest(object):
             self.c.reset(ports = self.port) # Force acquire ports, stop the traffic, remove all streams and clear stats
             self.c.set_port_attr(self.port, promiscuous = True)
             self.ctx  = self.c.create_service_ctx(port = self.port)
-            self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
             self.capture_id = self.c.start_capture(tx_ports = 0, rx_ports = 0, mode = 'fixed')
             
             # create clients
             clients = self.setup(count)
             if not clients:
                 print('\nno clients have sucessfully registered...exiting...\n')
-                print(self.capture_id)
                 self.c.stop_capture(self.capture_id['id'], '/tmp/port_0_rx.pcap')
                 exit(1)
                 
@@ -61,20 +59,15 @@ class DHCPTest(object):
         finally:
             self.c.disconnect()
             
-
-            
     def setup (self, count):
-            
         # phase one - service context
-        
-        # create DHCP clients
-        clients = self.create_dhcp_clients(count)
+        # create PPPoE clients
+        self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
+        clients = self.create_pppoe_clients(count)
         if not clients:
             return
         
         return clients
-            
-        
             
     def inject (self, clients):
         print('\n\nPress Return to generate high speed traffic from all clients...')
@@ -118,7 +111,7 @@ class DHCPTest(object):
 
         
         
-    def create_dhcp_clients (self, count):
+    def create_pppoe_clients(self, count):
         s_tag = 110
         dhcps = [ServicePPPOE(mac=random_mac(),
                               verbose_level=ServicePPPOE.ERROR,
@@ -126,10 +119,10 @@ class DHCPTest(object):
                               c_tag=(100 + i)) for i in range(count)]
 
         # execute all the registered services
-        print('\n*** step 1: starting DHCP acquire for {} clients ***\n'.format(len(dhcps)))
+        print('\n*** step 1: starting PPPoE acquire for {} clients ***\n'.format(len(dhcps)))
         self.ctx.run(dhcps)
         
-        print('\n*** step 2: DHCP acquire results ***\n')
+        print('\n*** step 2: PPPoE acquire results ***\n')
         for dhcp in dhcps:
             record = dhcp.get_record()
             print('client: MAC {0} - DHCP: {1}'.format(dhcp.get_mac(),record))
@@ -147,11 +140,11 @@ class DHCPTest(object):
     
 def main ():
 
-    print('How many DHCP clients to create: ', end='')
+    print('How many PPPoE clients to create: ', end='')
     count = int(input())
 
-    dhcp_test = DHCPTest(0)
-    dhcp_test.run(count)
+    pppoe_test = PPPoETest(0)
+    pppoe_test.run(count)
     
    
 if __name__ == '__main__':

@@ -44,8 +44,8 @@ class ServiceFilterPPPOE(ServiceFilter):
     def __init__ (self):
         self.services = defaultdict(list)
         
-        
     def add (self, service):
+        print('here {0}'.format(service.get_mac()))
         self.services[service.get_mac()].append(service)
         
     def lookup (self, pkt): 
@@ -53,15 +53,11 @@ class ServiceFilterPPPOE(ServiceFilter):
         mac = Ether(pkt).dst
         print( 'Looking up for packet with dstmac: {0}'.format(mac))
         
-        return self.services.get(pkt, [])
+        return self.services.get(mac, [])
 
-        
     def get_bpf_filter (self):
         return 'pppoed or (pppoes and not ( ppp proto 0x0021 or ppp proto 0x0057 ) )'
     
-    
-        
-
     
 ################### internal ###################
 class ServicePPPOE(Service):
@@ -78,7 +74,6 @@ class ServicePPPOE(Service):
         
         self.mac        = mac
         self.mac_bytes  = self.mac2bytes(mac)
-        
         self.record = None
         self.state  = 'INIT'
 
