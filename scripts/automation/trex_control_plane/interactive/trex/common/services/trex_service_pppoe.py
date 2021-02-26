@@ -174,7 +174,7 @@ class ServicePPPOE(Service):
             elif self.state == 'SELECTING':
                 
                 # wait until packet arrives or timeout occurs
-                pkts = yield pipe.async_wait_for_pkt()
+                pkts = yield pipe.async_wait_for_pkt(4)
                 pkts = [pkt['pkt'] for pkt in pkts]
 
                 for i in pkts:
