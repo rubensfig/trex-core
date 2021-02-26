@@ -273,6 +273,7 @@ class ServiceCtx(object):
             
     # reads packets from the server
     def _rx_pkts_process (self):
+        print('A')
         while not self.is_done():
 
             yield self.env.timeout(0.1)
