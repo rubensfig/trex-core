@@ -45,7 +45,6 @@ class ServiceFilterPPPOE(ServiceFilter):
         self.services = defaultdict(list)
         
     def add (self, service):
-        pass
         print('here {0}'.format(service.get_mac()))
         self.services[service.get_mac()].append(service)
         
@@ -57,7 +56,7 @@ class ServiceFilterPPPOE(ServiceFilter):
         return self.services.get(mac, [])
 
     def get_bpf_filter (self):
-        return 'pppoed'
+        return ''
     
     
 ################### internal ###################
