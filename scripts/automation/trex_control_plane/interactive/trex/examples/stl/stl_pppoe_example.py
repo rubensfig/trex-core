@@ -37,7 +37,7 @@ class DHCPTest(object):
             self.c.set_port_attr(self.port, promiscuous = True)
             self.ctx  = self.c.create_service_ctx(port = self.port)
             self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
-            self.capture_id = self.c.start_capture(rx_ports = 0, mode = 'fixed')
+            self.capture_id = self.c.start_capture(tx_ports = 0, rx_ports = 0, mode = 'fixed')
             
             # create clients
             clients = self.setup(count)
