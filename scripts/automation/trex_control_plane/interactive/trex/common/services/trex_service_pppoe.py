@@ -218,8 +218,8 @@ class ServicePPPOE(Service):
                     servs = pars.parse(pkt)
                     print(servs.code)
 
-                    if servs.code == PPPOEParser.PADO:
-                        services.append( offer )
+                    if servs.code == PPPOEParser.PADS:
+                        services.append( servs )
                 
                 if not services:
                     self.log('PPPOE: {0} *** timeout on ack - retries left: {1}'.format(self.mac, self.retries), level = Service.ERROR)
