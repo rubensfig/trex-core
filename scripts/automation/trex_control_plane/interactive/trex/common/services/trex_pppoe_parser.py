@@ -1,7 +1,8 @@
 from scapy.layers.ppp import PPPoE, PPPoED
 from scapy.layers.l2 import Ether
-from .trex_pppoetag import PPPoED_Tags
+from .trex_pppoetag import *
 from scapy.packet import NoPayload
+from scapy.layers.ppp import *
 from collections import namedtuple, OrderedDict
 
 from ..trex_client import  PacketBuffer
@@ -23,7 +24,7 @@ class PPPOEParser(FastParser):
     
     def __init__ (self):
         base_pkt = Ether(dst="ff:ff:ff:ff:ff:ff") / \
-                   Dot1Q(vlan=100) / Dot1Q(vlan=110) /
+                   Dot1Q(vlan=100) / Dot1Q(vlan=110) / \
                    PPPoED(version=1, type=1, code=self.PADI, sessionid=0, len=0) / \
                    PPPoED_Tags()
 
