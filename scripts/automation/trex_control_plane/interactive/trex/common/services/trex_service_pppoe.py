@@ -188,8 +188,8 @@ class ServicePPPOE(Service):
                     
                 offer = offers[0]
 
-                print("PPPOE: {0} <--- PADO from '{1}'".format(self.mac, offer[Ether].src))
-                self.ac_mac = offer[Ether].src
+                print("PPPOE: {0} <--- PADO from '{1}'".format(self.mac, offer.srcmac))
+                self.ac_mac = offer.srcmac
                 self.tags = offer[PPPoED_Tags]
                 
                 self.state = 'REQUESTING'
