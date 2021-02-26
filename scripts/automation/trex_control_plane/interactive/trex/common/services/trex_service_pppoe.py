@@ -202,7 +202,7 @@ class ServicePPPOE(Service):
                 
                 self.log('PPPOE: {0} ---> PADR'.format(self.mac))
 
-                padr = Ether(src=self.get_mac(),dst=self.ac_mac)/PPPoED(version=1,type=1,code="PADR",sessionid=0,len=0)/PPPoED_Tags()
+                padr = Ether(src=self.get_mac(),dst=self.ac_mac)/PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
                 padr[PPPoED_Tags] = self.tags
                 
                 # send the request
@@ -215,11 +215,11 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 services = []
                 for pkt in pkts:
-                    offer = Ether(pkt)
-                    # print(offer.show())
-                    if PPPoED not in offer:
-                        continue
-                    if offer[PPPoED].code == PPPoED.code.s2i['PADS']:
+                    pars = PPPOEParser()
+                    ret = pars.parse(pkt)
+                    print(ret.code)
+
+                    if offer.code == PPPOEParser.PADO:
                         services.append( offer )
                 
                 if not services:
