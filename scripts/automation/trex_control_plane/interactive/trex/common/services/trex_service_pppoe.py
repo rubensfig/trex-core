@@ -190,7 +190,7 @@ class ServicePPPOE(Service):
 
                 print("PPPOE: {0} <--- PADO from '{1}'".format(self.mac, offer.srcmac))
                 self.ac_mac = offer.srcmac
-                self.tags = offer[PPPoED_Tags]
+                self.tags = offer.tag_list
                 
                 self.state = 'REQUESTING'
                 continue
