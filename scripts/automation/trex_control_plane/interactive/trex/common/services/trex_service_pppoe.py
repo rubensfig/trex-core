@@ -27,6 +27,7 @@ import struct
 import socket
 import re
            
+parser = PPPOEParser()
 def ipv4_num_to_str (num):
     return socket.inet_ntoa(struct.pack('!I', num))
     
@@ -172,7 +173,7 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
-                    offer = Ether(pkt)
+                    offer = Ether(pkt)/Dot1Q(pkt)/Dot1Q(pkt)
                     print(offer.show())
                     if PPPoED not in offer:
                         continue
