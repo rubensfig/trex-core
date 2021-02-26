@@ -174,6 +174,8 @@ class ServicePPPOE(Service):
                 offers = []
                 for pkt in pkts:
 
+                    eth_par = Ether(pkt)
+                    print(eth_par)
                     pars = PPPOEParser()
                     pars.parse(pkt)
                     print(pars['code'])
