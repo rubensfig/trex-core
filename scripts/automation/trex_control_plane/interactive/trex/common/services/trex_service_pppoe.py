@@ -168,16 +168,17 @@ class ServicePPPOE(Service):
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(4)
                 pkts = [pkt['pkt'] for pkt in pkts]
+                offers = [PPPOEParser.parse(pkt) for pkt in pkts]
                 
                 # filter out the offer responses
-                offers = []
-                for pkt in pkts:
-                    offer = Ether(pkt) / Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag)
-                    print(offer.show())
-                    if PPPoED not in offer:
-                        continue
-                    if offer[PPPoED].code == PPPoED.code.s2i[PPPOEParser.PADI]:
-                        offers.append( offer )
+                #offers = []
+                #for pkt in pkts:
+                #    offer = Ether(pkt) / Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag)
+                #    print(offer.show())
+                #    if PPPoED not in offer:
+                #        continue
+                #    if offer[PPPoED].code == PPPoED.code.s2i[PPPOEParser.PADI]:
+                #        offers.append( offer )
                 
                 if not offers:
                     print('PPPOE: {0} *** timeout on offers - retries left: {1}'.format(self.mac, self.retries))
