@@ -27,7 +27,7 @@ class DHCPTest(object):
     def __init__ (self, port):
         self.port = port
         self.c    = STLClient()
-        self.c.set_verbose("high")
+        self.c.set_verbose("debug")
         
     def run (self, count):
             
