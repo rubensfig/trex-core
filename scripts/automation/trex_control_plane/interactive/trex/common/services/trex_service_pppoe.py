@@ -48,11 +48,10 @@ class ServiceFilterPPPOE(ServiceFilter):
     def add (self, service):
         self.services[service.get_mac()].append(service)
         
-        
     def lookup (self, pkt): 
         # correct MAC is enough to verify ownership
         mac = Ether(pkt).dst
-        # print( 'Looking up for packet with dstmac: {0}'.format(mac))
+        print( 'Looking up for packet with dstmac: {0}'.format(mac))
         
         return self.services.get(mac, [])
 
