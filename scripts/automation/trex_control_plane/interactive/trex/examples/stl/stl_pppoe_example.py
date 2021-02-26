@@ -96,7 +96,7 @@ class DHCPTest(object):
             streams.append(STLStream(packet = pkt, mode = STLTXCont(pps = 1000)))
         
         self.c.add_streams(ports = self.port, streams = streams)
-        self.c.start(ports = self.port, mult = '100%')
+        self.c.start(ports = self.port, mult = '100%', synchronized=True)
         self.c.wait_on_traffic()
         
         print('\n*** Done ***\n')
