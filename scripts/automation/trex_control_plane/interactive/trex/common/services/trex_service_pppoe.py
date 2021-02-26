@@ -191,14 +191,14 @@ class ServicePPPOE(Service):
                         offers.append( offer )
                 
                 if not offers:
-                    self.log('PPPOE: {0} *** timeout on offers - retries left: {1}'.format(self.mac, self.retries), level = Service.ERROR)
+                    print('PPPOE: {0} *** timeout on offers - retries left: {1}'.format(self.mac, self.retries), level = Service.ERROR)
                     self.state = 'INIT'
                     continue
                     
                     
                 offer = offers[0]
 
-                self.log("PPPOE: {0} <--- PADO from '{1}'".format(self.mac, offer[Ether].src))
+                print("PPPOE: {0} <--- PADO from '{1}'".format(self.mac, offer[Ether].src))
                 self.ac_mac = offer[Ether].src
                 self.tags = offer[PPPoED_Tags]
                 
