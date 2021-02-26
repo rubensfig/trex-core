@@ -27,16 +27,16 @@ class DHCPTest(object):
     def __init__ (self, port):
         self.port = port
         self.c    = STLClient()
-        self.c.set_verbose("debug")
+        self.c.set_verbose("high")
         
     def run (self, count):
             
         try:
             self.c.connect()
             self.c.reset(ports = self.port) # Force acquire ports, stop the traffic, remove all streams and clear stats
+            self.c.set_port_attr(self.port, promiscuous = True)
             self.ctx  = self.c.create_service_ctx(port = self.port)
             self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
-            self.c.set_port_attr(self.port, promiscuous = True)
             self.capture_id = self.c.start_capture(rx_ports = 0, mode = 'fixed')
             
             # create clients
