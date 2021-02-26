@@ -204,7 +204,6 @@ class ServicePPPOE(Service):
 
                 padr = Ether(src=self.get_mac(),dst=self.ac_mac)/PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
                 padr.tag_list = self.tags
-                print(padr)
                 
                 # send the request
                 yield pipe.async_tx_pkt(padr)
@@ -230,7 +229,7 @@ class ServicePPPOE(Service):
                 
                 # by default we choose the first one... usually there should be only one response
                 service = services[0]
-                self.session_id = service[PPPoED].sessionid
+                self.session_id = service.sessionid
 
                 self.log("PPPOE: {0} <--- PADS from AC '{1}' session_id: '{2}'".format(self.mac, service[Ether].src, self.session_id))
                 self.state = 'LCP'
