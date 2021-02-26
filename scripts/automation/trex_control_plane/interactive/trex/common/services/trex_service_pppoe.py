@@ -172,7 +172,7 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
-                    offer = Ether(pkt)
+                    offer = Ether(pkt) / Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag)
                     print(offer.show())
                     if PPPoED not in offer:
                         continue
