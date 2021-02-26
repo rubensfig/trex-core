@@ -53,7 +53,7 @@ class ServiceFilterPPPOE(ServiceFilter):
         mac = Ether(pkt).dst
         print( 'Looking up for packet with dstmac: {0}'.format(mac))
         
-        return self.services.get(mac, [])
+        return self.services.get(pkt, [])
 
         
     def get_bpf_filter (self):
