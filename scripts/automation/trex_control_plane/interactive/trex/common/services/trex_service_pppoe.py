@@ -175,7 +175,7 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
 
                     pars = PPPOEParser()
-                    pars.parse(pkt)
+                    pars.parse(pkt.get_tags())
                     print(pars)
 
                     self.state = 'INIT'
