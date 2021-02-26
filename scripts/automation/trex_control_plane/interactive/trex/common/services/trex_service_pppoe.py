@@ -176,7 +176,7 @@ class ServicePPPOE(Service):
 
                     pars = PPPOEParser()
                     pars.parse(pkt)
-                    print(pars.code)
+                    print(pars['code'])
 
                     self.state = 'INIT'
                     continue
