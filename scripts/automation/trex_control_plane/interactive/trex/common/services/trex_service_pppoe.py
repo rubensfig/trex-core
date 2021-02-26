@@ -176,15 +176,12 @@ class ServicePPPOE(Service):
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(4)
                 pkts = [pkt['pkt'] for pkt in pkts]
-
-                for i in pkts:
-                    print(i)
                 
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
                     offer = Ether(pkt)
-                    # print(offer.show())
+                    print(offer.show())
                     if PPPoED not in offer:
                         continue
                     if offer[PPPoED].code == PPPoED.code.s2i['PADO']:
