@@ -235,11 +235,11 @@ class ServiceCtx(object):
 
     def _fetch_rx_pkts_per_filter (self, f):
         pkts = []
+        print(f['capture_id'])
         self.client.fetch_capture_packets(f['capture_id'], pkts)
 
         # for each packet - try to forward to each service until we hit
         for pkt in pkts:
-            print(pkt)
             pkt_bin   = pkt['binary']
             rx_ts     = pkt['ts']
             
@@ -273,7 +273,6 @@ class ServiceCtx(object):
             
     # reads packets from the server
     def _rx_pkts_process (self):
-        print('A')
         while not self.is_done():
 
             yield self.env.timeout(0.1)
