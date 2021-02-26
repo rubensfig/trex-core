@@ -175,7 +175,6 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     pars = PPPOEParser()
                     ret = pars.parse(pkt)
-                    print(ret.code)
 
                     if ret.code == PPPOEParser.PADO:
                         offers.append(ret)
@@ -216,10 +215,10 @@ class ServicePPPOE(Service):
                 services = []
                 for pkt in pkts:
                     pars = PPPOEParser()
-                    ret = pars.parse(pkt)
-                    print(ret.code)
+                    servs = pars.parse(pkt)
+                    print(servs.code)
 
-                    if ret.code == PPPOEParser.PADO:
+                    if servs.code == PPPOEParser.PADO:
                         services.append( offer )
                 
                 if not services:
