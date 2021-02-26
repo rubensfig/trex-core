@@ -31,6 +31,7 @@ class DHCPTest(object):
         
     def run (self, count):
             
+        self.setup(count)
         try:
             self.c.connect()
             self.c.reset(ports = self.port) # Force acquire ports, stop the traffic, remove all streams and clear stats
