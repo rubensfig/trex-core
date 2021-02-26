@@ -31,16 +31,19 @@ class DHCPTest(object):
         
     def run (self, count):
             
-        self.setup(count)
         try:
             self.c.connect()
             self.c.reset(ports = self.port) # Force acquire ports, stop the traffic, remove all streams and clear stats
             self.ctx  = self.c.create_service_ctx(port = self.port)
+            self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
+            self.capture_id = self.c.start_capture(rx_ports = 0, mode = 'fixed')
             
             # create clients
             clients = self.setup(count)
             if not clients:
                 print('\nno clients have sucessfully registered...exiting...\n')
+                print(self.capture_id)
+                self.c.stop_capture(self.capture_id, '/tmp/port_0_rx.pcap')
                 exit(1)
                 
             # inject traffic
@@ -62,8 +65,6 @@ class DHCPTest(object):
     def setup (self, count):
             
         # phase one - service context
-        self.c.set_service_mode(ports = self.port, enabled = True) # enables service mode on port = Rx packets not ignored
-        self.capture_id = self.c.start_capture(rx_ports = 0, mode = 'fixed')
         
         # create DHCP clients
         clients = self.create_dhcp_clients(count)
