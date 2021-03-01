@@ -147,7 +147,7 @@ def main ():
         pppoe_test = PPPoETest(0)
         pppoe_test.run(count)
     finally :
-        pppoe_test.c.stop_capture(self.capture_id['id'], '/tmp/port_0_txrx.pcap')
+        pppoe_test.c.stop_capture(pppoe_test.capture_id['id'], '/tmp/port_0_txrx.pcap')
 
     
    
