@@ -241,6 +241,7 @@ class ServicePPPOE(Service):
                 if not self.lcp_our_negotiated:
                     self.log("PPPOE: {0} ---> LCP CONF REQ".format(self.mac))
                     lcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
+                              Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag) / \
                               PPPoE(sessionid=self.session_id) / \
                               PPP(proto='Link Control Protocol') / \
                               PPP_LCP_Configure(code='Configure-Request', options=[PPP_LCP_MRU_Option(max_recv_unit=1492) / \
@@ -281,6 +282,7 @@ class ServicePPPOE(Service):
                 # send the request
                 self.log("PPPOE: {0} ---> PAP CONF REQ".format(self.mac))
                 lcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
+                          Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag) /  \
                           PPPoE(sessionid=self.session_id) / \
                           PPP(proto='Password Authentication Protocol') / \
                           PPP_PAP_Request(code='Authenticate-Request', username='1', password='1')
@@ -308,6 +310,7 @@ class ServicePPPOE(Service):
                 if not self.ipcp_our_negotiated:
                     self.log("PPPOE: {0} ---> IPCP CONF REQ".format(self.mac))
                     ipcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
+                               Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag) / \
                                PPPoE(sessionid=self.session_id) / \
                                PPP(proto='Internet Protocol Control Protocol') / \
                                PPP_IPCP(code='Configure-Request', options=[PPP_IPCP_Option_IPAddress(data=self.ip)])
