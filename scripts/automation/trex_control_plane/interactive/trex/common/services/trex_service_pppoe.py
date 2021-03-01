@@ -56,7 +56,7 @@ class ServiceFilterPPPOE(ServiceFilter):
         return self.services.get(mac, [])
 
     def get_bpf_filter (self):
-        return 'pppoed'
+        return ''
     
     
 ################### internal ###################
@@ -201,7 +201,13 @@ class ServicePPPOE(Service):
                 
                 self.log('PPPOE: {0} ---> PADR'.format(self.mac))
 
-                padr = Ether(src=self.get_mac(),dst=self.ac_mac)/PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
+                padr = Ether(src=self.get_mac(),dst=self.ac_mac)/
+                if self.s_tag:
+                    pkt = pkt / Dot1Q(vlan=self.s_tag)
+                if self.c_tag:
+                    pkt = pkt / Dot1Q(vlan=self.c_tag)
+
+                pkt = pkt / PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
                 padr.tag_list = self.tags
                 
                 # send the request
