@@ -143,8 +143,12 @@ def main ():
     print('How many PPPoE clients to create: ', end='')
     count = int(input())
 
-    pppoe_test = PPPoETest(0)
-    pppoe_test.run(count)
+    try :
+        pppoe_test = PPPoETest(0)
+        pppoe_test.run(count)
+    finally :
+        pppoe_test.c.stop_capture(self.capture_id['id'], '/tmp/port_0_txrx.pcap')
+
     
    
 if __name__ == '__main__':
