@@ -201,7 +201,7 @@ class ServicePPPOE(Service):
                 
                 self.log('PPPOE: {0} ---> PADR'.format(self.mac))
 
-                padr = Ether(src=self.get_mac(),dst=self.ac_mac)/
+                padr = Ether(src=self.get_mac(),dst=self.ac_mac)
                 if self.s_tag:
                     pkt = pkt / Dot1Q(vlan=self.s_tag)
                 if self.c_tag:
