@@ -36,7 +36,6 @@ class PPPOEParser(FastParser):
         self.add_field('PPPoE Tag List.tag_list','tag_list', getter = self.get_tags, setter = self.set_tags)
 
     def get_tags (self, pkt_bytes, info):
-        
         # min length
         if len(pkt_bytes) < info['offset']:
             return None
@@ -48,7 +47,8 @@ class PPPOEParser(FastParser):
 
         while index < len(options):
 
-            o  = ord(options[index])
+            print(options[index])
+            o  = ord(str(options[index]))
             index += 1
 
             # end
