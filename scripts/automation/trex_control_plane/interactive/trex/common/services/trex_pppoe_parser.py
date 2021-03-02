@@ -45,6 +45,45 @@ class PPPOEParser(FastParser):
 
         opt = OrderedDict()
         index = 0
+
+        while index < len(options):
+
+            o  = ord(options[index])
+            index += 1
+
+            # end
+            if o == 255:
+                break
+
+            # pad
+            elif o == 0:
+                continue
+
+            # fetch length
+            olen = ord(options[index])
+            index += 1
+
+            # message type
+            if o in self.opts:
+                ot = self.opts[o]
+                if ot['type'] == 'byte':
+                    opt[ot['name']] = struct.unpack_from('!B', options, index)[0]
+                    
+                elif ot['type'] == 'int':
+                    opt[ot['name']] = struct.unpack_from('!I', options, index)[0]
+                    
+                elif ot['type'] == 'str':
+                    opt[ot['name']] = struct.unpack_from('!{0}s'.format(olen), options, index)[0]
+                    
+                else:
+                    raise Exception('unknown type: {0}'.format(ot['type']))
+
+            else:
+                pass  # we should ignore oprions that we don't require for the protocol and not creash 
+
+            # advance
+            index += olen
+
         
         return opt
 
