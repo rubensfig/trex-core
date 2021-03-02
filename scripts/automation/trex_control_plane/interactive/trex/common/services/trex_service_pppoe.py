@@ -52,7 +52,7 @@ class ServiceFilterPPPOE(ServiceFilter):
     def lookup (self, pkt): 
         # correct MAC is enough to verify ownership
         mac = Ether(pkt).dst
-        print( 'Looking up for packet with dstmac: {0}'.format(mac))
+        # print( 'Looking up for packet with dstmac: {0}'.format(mac))
         return self.services.get(mac, [])
 
     def get_bpf_filter (self):
@@ -199,9 +199,11 @@ class ServicePPPOE(Service):
             elif self.state == 'REQUESTING':
                 self.retries = 5
                 
-                self.log('PPPOE: {0} ---> PADR'.format(self.mac))
+                print('PPPOE: {0} ---> PADR'.format(self.mac))
 
-                padr = Ether(src=self.get_mac(),dst=self.ac_mac)/Dot1Q(vlan=self.s_tag)/Dot1Q(vlan=self.c_tag)/PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
+                padr = Ether(src=self.get_mac(),dst=self.ac_mac)/ \
+                       Dot1Q(vlan=self.s_tag)/Dot1Q(vlan=self.c_tag)/ \
+                       PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
                 padr.tag_list = self.tags
                 
                 # send the request
@@ -216,13 +218,12 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     pars = PPPOEParser()
                     servs = pars.parse(pkt)
-                    print("PADS", servs.code)
 
                     if servs.code == PPPOEParser.PADS:
                         services.append( servs )
                 
                 if not services:
-                    self.log('PPPOE: {0} *** timeout on ack - retries left: {1}'.format(self.mac, self.retries), level = Service.ERROR)
+                    print('PPPOE: {0} *** timeout on ack - retries left: {1}'.format(self.mac, self.retries), level = Service.ERROR)
                     self.state = 'INIT'
                     continue
                 
@@ -230,7 +231,7 @@ class ServicePPPOE(Service):
                 service = services[0]
                 self.session_id = service.sessionid
 
-                self.log("PPPOE: {0} <--- PADS from AC '{1}' session_id: '{2}'".format(self.mac, service[Ether].src, self.session_id))
+                print("PPPOE: {0} <--- PADS from AC '{1}' session_id: '{2}'".format(self.mac, service[Ether].src, self.session_id))
                 self.state = 'LCP'
                 
                 continue
