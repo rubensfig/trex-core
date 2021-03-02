@@ -189,6 +189,7 @@ class ServicePPPOE(Service):
 
                 print("PPPOE: {0} <--- PADO from '{1}'".format(self.mac, bytes2mac(offer.srcmac)))
                 self.ac_mac = bytes2mac(offer.srcmac)
+                print(offer.tag_list)
                 self.tags = offer.tag_list
                 
                 self.state = 'REQUESTING'
@@ -204,7 +205,6 @@ class ServicePPPOE(Service):
                 padr = Ether(src=self.get_mac(),dst=self.ac_mac)/ \
                        Dot1Q(vlan=self.s_tag)/Dot1Q(vlan=self.c_tag)/ \
                        PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=0)/PPPoED_Tags()
-                print(self.tags)
                 padr.tag_list = self.tags
                 
                 # send the request
