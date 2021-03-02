@@ -46,8 +46,6 @@ class PPPOEParser(FastParser):
         index = 0
         
         tag = PPPoED_Tags(_pkt=options)
-        for i in tag.tag_list:
-            opt[i.tag_type] = i.tag_value
 
         return options
 
