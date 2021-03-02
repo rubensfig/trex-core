@@ -175,7 +175,6 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     pars = PPPOEParser()
                     ret = pars.parse(pkt)
-                    print(ret.tag_list)
 
                     if ret.code == PPPOEParser.PADO:
                         offers.append(ret)
