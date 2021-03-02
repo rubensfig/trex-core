@@ -60,7 +60,7 @@ class PPPOEParser(FastParser):
                 continue
 
             # fetch length
-            olen = ord(options[index])
+            olen = ord(str(options[index]))
             index += 1
 
             # message type
