@@ -190,7 +190,6 @@ class ServicePPPOE(Service):
 
                 print("PPPOE: {0} <--- PADO from '{1}'".format(self.mac, bytes2mac(offer.srcmac)))
                 self.ac_mac = bytes2mac(offer.srcmac)
-                print(offer.tag_list)
                 self.tags = offer.tag_list
                 
                 self.state = 'REQUESTING'

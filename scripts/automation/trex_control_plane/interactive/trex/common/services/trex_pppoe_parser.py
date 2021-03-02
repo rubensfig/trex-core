@@ -47,48 +47,16 @@ class PPPOEParser(FastParser):
         
         tag = PPPoED_Tags(_pkt=options)
         for i in tag.tag_list:
-            if i.tag_type == 260:
-                print(str(i.tag_value))
-                val = str(i.tag_value).replace('\\x', "")
-            else:
-                val = i.tag_value
-
-            print(i.tag_type, val)
             opt[i.tag_type] = val
 
         return opt
 
 
     def set_tags (self, pkt_bytes, info, options):
+        for o in options:
+            print(o)
 
-        output = bytes()
-
-        for o, v in options.items():
-            if o in self.opts:
-                ot = self.opts[o]
-                
-                # write tag
-                output += struct.pack('!B', ot['id'])
-                
-                # write the size and value
-                if ot['type'] == 'byte':
-                    output += struct.pack('!B', 1)
-                    output += struct.pack('!B', v)
-                    
-                elif ot['type'] == 'int':
-                    output += struct.pack('!B', 4)
-                    output += struct.pack('!I', v)
-                    
-                elif ot['type'] == 'str':
-                    output += struct.pack('!B', len(v))
-                    output += struct.pack('!{0}s'.format(len(v)), v)
-                    
-                
-                
-        # write end
-        output += struct.pack('!B', 255)
-        
-        return pkt_bytes[:info['offset']] + output + pkt_bytes[info['offset'] + len(output):]
+        return pkt_bytes
         
     def disc (self, mac):
         '''
