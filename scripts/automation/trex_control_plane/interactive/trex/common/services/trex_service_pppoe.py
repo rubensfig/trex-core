@@ -201,9 +201,10 @@ class ServicePPPOE(Service):
                 
                 print('PPPOE: {0} ---> PADR'.format(self.mac))
 
+                service_name = b'\x01\x01\x00\x00' # very hacky
                 padr = Ether(src=self.get_mac(),dst=self.ac_mac)/ \
                        Dot1Q(vlan=self.s_tag)/Dot1Q(vlan=self.c_tag)/ \
-                       PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=28)/PPPoED_Tags(_pkt=self.tags)
+                       PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=32)/PPPoED_Tags(_pkt=self.tags + service_name)
                 # padr.tag_list = self.tags
                 
                 # send the request
