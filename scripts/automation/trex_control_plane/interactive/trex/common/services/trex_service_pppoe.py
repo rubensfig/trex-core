@@ -203,7 +203,7 @@ class ServicePPPOE(Service):
 
                 padr = Ether(src=self.get_mac(),dst=self.ac_mac)/ \
                        Dot1Q(vlan=self.s_tag)/Dot1Q(vlan=self.c_tag)/ \
-                       PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=41)/PPPoED_Tags(_pkt=self.tags)
+                       PPPoED(version=1,type=1,code=PPPOEParser.PADR,sessionid=0,len=28)/PPPoED_Tags(_pkt=self.tags)
                 # padr.tag_list = self.tags
                 
                 # send the request
