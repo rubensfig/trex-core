@@ -46,7 +46,15 @@ class PPPOEParser(FastParser):
         index = 0
         
         tag = PPPoED_Tags(_pkt=options)
-        print(tag.fields)
+        for i in tag.tag_list:
+            if i.tag_type == 260:
+                print(str(i.tag_value))
+                val = str(i.tag_value).replace('\\x', "")
+            else:
+                val = i.tag_value
+
+            print(i.tag_type, val)
+            opt[i.tag_type] = val
 
         return opt
 
