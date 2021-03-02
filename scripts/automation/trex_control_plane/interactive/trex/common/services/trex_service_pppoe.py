@@ -223,7 +223,7 @@ class ServicePPPOE(Service):
                         services.append( servs )
                 
                 if not services:
-                    print('PPPOE: {0} *** timeout on ack - retries left: {1}'.format(self.mac, self.retries), level = Service.ERROR)
+                    print('PPPOE: {0} *** timeout on ack - retries left: {1}'.format(self.mac, self.retries))
                     self.state = 'INIT'
                     continue
                 
