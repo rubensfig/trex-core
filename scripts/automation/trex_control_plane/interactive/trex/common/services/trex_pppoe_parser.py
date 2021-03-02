@@ -49,7 +49,7 @@ class PPPOEParser(FastParser):
         for i in tag.tag_list:
             opt[i.tag_type] = i.tag_value
 
-        return opt
+        return options
 
 
     def set_tags (self, pkt_bytes, info, options):
