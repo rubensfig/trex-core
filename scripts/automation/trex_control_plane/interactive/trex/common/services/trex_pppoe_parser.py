@@ -45,10 +45,11 @@ class PPPOEParser(FastParser):
         opt = OrderedDict()
         index = 0
         
+        service_name = b'\x01\x01\x00\x00' # very hacky
         tag = PPPoED_Tags(_pkt=options)
         for i in tag.tag_list:
             if i.tag_type == 260:
-                return i
+                return i +  service_name
 
 
     def set_tags (self, pkt_bytes, info, options):
