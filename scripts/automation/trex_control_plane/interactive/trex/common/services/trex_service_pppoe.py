@@ -231,7 +231,7 @@ class ServicePPPOE(Service):
                 service = services[0]
                 self.session_id = service.sessionid
 
-                print("PPPOE: {0} <--- PADS from AC '{1}' session_id: '{2}'".format(self.mac, service[Ether].src, self.session_id))
+                print("PPPOE: {0} <--- PADS from AC '{1}' session_id: '{2}'".format(self.mac, service.src, self.session_id))
                 self.state = 'LCP'
                 
                 continue
