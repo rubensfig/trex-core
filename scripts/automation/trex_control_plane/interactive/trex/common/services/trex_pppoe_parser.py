@@ -46,7 +46,11 @@ class PPPOEParser(FastParser):
         index = 0
         
         service_name = b'\x01\x01\x00\x00' # very hacky
-        tag = PPPoED_Tags(_pkt=options + service_name)
+
+        options += service_name
+        print(options)
+        tag = PPPoED_Tags(_pkt=options)
+        return tag.tag_list
         for i in tag.tag_list:
             if i.tag_type == 260:
                 return i
