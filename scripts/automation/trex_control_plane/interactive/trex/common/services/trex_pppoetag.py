@@ -372,8 +372,6 @@ class PPP_CHAP(Packet):
     ]
 
 
-
-
 bind_layers(PPPoED, PPPoED_Tags, type=1)
 bind_layers(PPP, PPP_LCP, proto=0xc021)
 bind_layers(PPP, PPP_PAP, proto=0xc023)
