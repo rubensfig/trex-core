@@ -361,7 +361,7 @@ _PPP_chaptypes = {1: "Challenge",
                   3: "Success",
                   4: "Failure"}
 
-class PPP_CHAP(Packet):
+class PPP_CHAP(PPP):
     name = "PPP Challenge Handshake Authentication Protocol"
     fields_desc = [
         ByteEnumField("code", 1, _PPP_chaptypes),
@@ -375,4 +375,5 @@ class PPP_CHAP(Packet):
 bind_layers(PPPoED, PPPoED_Tags, type=1)
 bind_layers(PPP, PPP_LCP, proto=0xc021)
 bind_layers(PPP, PPP_PAP, proto=0xc023)
+bind_layers(PPP, PPP_CHAP, proto=0xc223)
 bind_layers(Ether, PPP_IPCP, type=0x8021)
