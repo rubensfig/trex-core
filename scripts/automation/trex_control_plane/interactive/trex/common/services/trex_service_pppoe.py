@@ -287,7 +287,7 @@ class ServicePPPOE(Service):
 
                 for pkt in pkts:
                     chap = Ether(pkt)
-                    if PPP_CHAP in chap:
+                    if PPP_CHAP.code in chap:
                         print(chap.show())
 
 
