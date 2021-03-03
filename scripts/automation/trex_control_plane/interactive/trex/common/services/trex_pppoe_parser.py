@@ -33,6 +33,7 @@ class PPPOEParser(FastParser):
         self.add_field('Ethernet.dst', 'dstmac')
         self.add_field('Ethernet.src', 'srcmac')
         self.add_field('PPP over Ethernet Discovery.code', 'code')
+        self.add_field('PPP over Ethernet Discovery.sessionid', 'sessionid')
         self.add_field('PPPoE Tag List.tag_list','tag_list', getter = self.get_tags, setter = self.set_tags)
 
     def get_tags (self, pkt_bytes, info):
