@@ -287,7 +287,9 @@ class ServicePPPOE(Service):
 
                 for pkt in pkts:
                     chap = Ether(pkt)
-                    print(chap.show())
+                    if PPP_CHAP in chap:
+                        print(chap.show())
+
 
                 # send the request
                 print("PPPOE: {0} ---> PAP CONF REQ".format(self.mac))
