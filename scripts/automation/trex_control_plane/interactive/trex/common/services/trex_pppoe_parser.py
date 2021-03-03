@@ -52,10 +52,6 @@ class PPPOEParser(FastParser):
         print(options)
         tag = PPPoED_Tags(_pkt=options)
         return options
-        for i in tag.tag_list:
-            if i.tag_type == 260:
-                return i
-
 
     def set_tags (self, pkt_bytes, info, options):
         for o in options:

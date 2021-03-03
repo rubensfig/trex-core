@@ -285,21 +285,20 @@ class ServicePPPOE(Service):
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt['pkt'] for pkt in pkts]
 
+                challenge_id = 0
                 for pkt in pkts:
                     chap = Ether(pkt)
-                    print(chap.show())
-                    if PPP_CHAP_ChallengeResponse not in chap:
-                        print("herer")
-                    elif chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i['Challenge']:
-                        print("challenge")
+                    if chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i['Challenge']:
+                        challenge_id = chap[PPP_CHAP_ChallengeResponse].id
 
                 # send the request
-                print("PPPOE: {0} ---> PAP CONF REQ".format(self.mac))
+                print("PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac))
                 lcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
                           Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag) /  \
                           PPPoE(sessionid=self.session_id) / \
-                          PPP(proto='Password Authentication Protocol') / \
-                          PPP_PAP_Request(code='Authenticate-Request', username='1', password='1')
+                          PPP(proto='Challenge Handshake Authentication Protocol') / \
+                          PPP_CHAP_ChallengeResponse(code=2, id=challenge_id, optional_name='testing')
+
                 # lcp_req.show2()
                 yield pipe.async_tx_pkt(lcp_req)
                 
