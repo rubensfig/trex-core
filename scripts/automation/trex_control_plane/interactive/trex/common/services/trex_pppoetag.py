@@ -361,7 +361,7 @@ _PPP_chaptypes = {1: "Challenge",
                   3: "Success",
                   4: "Failure"}
 
-class PPP_CHAP(PPP):
+class PPP_CHAP(Packet):
     name = "PPP Challenge Handshake Authentication Protocol"
     fields_desc = [
         ByteEnumField("code", 1, _PPP_chaptypes),
