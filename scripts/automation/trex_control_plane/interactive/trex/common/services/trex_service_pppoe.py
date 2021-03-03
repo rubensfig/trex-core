@@ -288,7 +288,9 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap = Ether(pkt)
                     print(chap.show())
-                    if PPP_CHAP.code in chap:
+                    if chap[PPP_CHAP].code in PPP_CHAP.code.s2i['Challenge']:
+                        print("herer")
+
 
 
                 # send the request
