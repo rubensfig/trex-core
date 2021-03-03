@@ -279,6 +279,17 @@ class ServicePPPOE(Service):
 
                 continue
             elif self.state == 'AUTH':
+                print("PPPOE: {0} <--- CHAP ".format(self.mac))
+
+                # wait for response
+                pkts = yield pipe.async_wait_for_pkt(3)
+                pkts = [pkt['pkt'] for pkt in pkts]
+
+                for pkt in pkts:
+                    chap = Ether(pkt)
+                    if PPP_CHAP_ChallengeResponse(PPP_CHAP) in chap:
+                        print(chap.show())
+
 
                 # send the request
                 print("PPPOE: {0} ---> PAP CONF REQ".format(self.mac))
