@@ -288,8 +288,10 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap = Ether(pkt)
                     print(chap.show())
-                    if PPP_CHAP not in chap:
+                    if PPP_CHAP_ChallengeResponse not in chap:
                         print("herer")
+                    elif chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i.['Challenge']:
+                        print("challenge")
 
                 # send the request
                 print("PPPOE: {0} ---> PAP CONF REQ".format(self.mac))

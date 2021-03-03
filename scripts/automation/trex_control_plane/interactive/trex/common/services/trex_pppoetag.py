@@ -371,6 +371,40 @@ class PPP_CHAP(Packet):
         StrLenField("data", "", length_from=lambda pkt: pkt.len - 4),
     ]
 
+class PPP_CHAP_ChallengeResponse(PPP_CHAP):
+    fields_desc = [
+        ByteEnumField("code", 1, _PPP_chaptypes),
+        XByteField("id", 0),
+        FieldLenField(
+            "len", None, fmt="!H", length_of="value",
+            adjust=lambda pkt, val: val + len(pkt.optional_name) + 5,
+        ),
+        FieldLenField("value_size", None, fmt="B", length_of="value"),
+        XStrLenField("value", b'\x00\x00\x00\x00\x00\x00\x00\x00',
+                     length_from=lambda pkt: pkt.value_size),
+        StrLenField("optional_name", "",
+                    length_from=lambda pkt: pkt.len - pkt.value_size - 5),
+    ]
+
+    def answers(self, other):
+        return isinstance(other, PPP_CHAP_ChallengeResponse) \
+            and other.code == 1 and self.code == 2 and self.id == other.id
+
+    def mysummary(self):
+        if self.code == 1:
+            return self.sprintf(
+                "CHAP challenge=0x%PPP_CHAP_ChallengeResponse.value% "
+                "optional_name=%PPP_CHAP_ChallengeResponse.optional_name%"
+            )
+        elif self.code == 2:
+            return self.sprintf(
+                "CHAP response=0x%PPP_CHAP_ChallengeResponse.value% "
+                "optional_name=%PPP_CHAP_ChallengeResponse.optional_name%"
+            )
+        else:
+            return super(PPP_CHAP_ChallengeResponse, self).mysummary()
+
+
 
 bind_layers(PPPoED, PPPoED_Tags, type=1)
 bind_layers(PPP, PPP_LCP, proto=0xc021)
