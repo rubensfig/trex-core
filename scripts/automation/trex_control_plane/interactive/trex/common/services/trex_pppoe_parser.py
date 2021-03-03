@@ -51,7 +51,7 @@ class PPPOEParser(FastParser):
         options += service_name
         print(options)
         tag = PPPoED_Tags(_pkt=options)
-        return tag.tag_list
+        return options
         for i in tag.tag_list:
             if i.tag_type == 260:
                 return i
