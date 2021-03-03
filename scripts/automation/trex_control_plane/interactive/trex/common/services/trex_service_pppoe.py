@@ -290,7 +290,7 @@ class ServicePPPOE(Service):
                     print(chap.show())
                     if PPP_CHAP_ChallengeResponse not in chap:
                         print("herer")
-                    elif chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i.['Challenge']:
+                    elif chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i['Challenge']:
                         print("challenge")
 
                 # send the request
