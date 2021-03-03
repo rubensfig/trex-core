@@ -20,6 +20,7 @@ from scapy.layers.l2 import Ether
 from scapy.layers.inet import IP, UDP
 from .trex_pppoetag import *
 from .trex_pppoetag import _PPP_lcptypes
+from .trex_pppoetag import PPP_CHAP
 from scapy.layers.ppp import *
 
 from collections import defaultdict
@@ -290,8 +291,6 @@ class ServicePPPOE(Service):
                     print(chap.show())
                     if chap[PPP_CHAP].code in PPP_CHAP.code.s2i['Challenge']:
                         print("herer")
-
-
 
                 # send the request
                 print("PPPOE: {0} ---> PAP CONF REQ".format(self.mac))
