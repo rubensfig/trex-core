@@ -404,6 +404,20 @@ class PPP_CHAP_ChallengeResponse(PPP_CHAP):
         else:
             return super(PPP_CHAP_ChallengeResponse, self).mysummary()
 
+_PPP_conftypes = {1: "Configure-Request",
+                  2: "Configure-Ack",
+                  3: "Configure-Nak",
+                  4: "Configure-Reject",
+                  5: "Terminate-Request",
+                  6: "Terminate-Ack",
+                  7: "Code-Reject",
+                  8: "Protocol-Reject",
+                  9: "Echo-Request",
+                  10: "Echo-Reply",
+                  11: "Discard-Request",
+                  14: "Reset-Request",
+                  15: "Reset-Ack",
+                  }
 
 # PPP IPCP stuff (RFC 1332)
 
