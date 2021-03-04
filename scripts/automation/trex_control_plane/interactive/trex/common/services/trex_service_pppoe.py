@@ -321,7 +321,7 @@ class ServicePPPOE(Service):
                 print("PPPOE: {0} <--- CHAP SUCESS ".format(self.mac))
                 for pkt in pkts:
                     chap_success = Ether(pkt)
-                    chap_success.show()
+                    # chap_success.show()
                     if chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i['Success']:
                         self.auth_negotiated = True
 
@@ -343,7 +343,6 @@ class ServicePPPOE(Service):
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt['pkt'] for pkt in pkts]
-                pkts.extend( self.pkt_queue )
 
                 for pkt in pkts:
                     ipcp = Ether(pkt)
