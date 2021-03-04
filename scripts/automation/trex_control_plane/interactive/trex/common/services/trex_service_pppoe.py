@@ -294,7 +294,7 @@ class ServicePPPOE(Service):
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
                 
-                crypto = MSCHAPv2Crypto(challenge_id, value, value, 'testing', 'password')
+                crypto = MSCHAPv2Crypto(challenge_id, value, value, bytes('testing'), 'password')
                 print(crypto.challenge_response())
                 # send the request
                 print("PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac))
