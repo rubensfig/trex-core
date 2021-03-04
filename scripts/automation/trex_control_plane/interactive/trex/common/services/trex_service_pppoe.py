@@ -300,7 +300,7 @@ class ServicePPPOE(Service):
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
                 
-                crypto = MSCHAPv2Crypto(challenge_id, value, value, b'testing', 'password')
+                crypto = MSCHAPv2Crypto(challenge_id, value, value, b'testing', 'password') # USER DEFAULTS = testing/ password
                 print(crypto.challenge_response())
                 mschap_pkt = MSCHAPv2Packet(2)
                 mschap_pkt.ms_chap_id = challenge_id
@@ -324,7 +324,7 @@ class ServicePPPOE(Service):
                 pkts = [pkt['pkt'] for pkt in pkts]
 
                 self.auth_negotiated = False
-                print("PPPOE: {0} <--- CHAP SUCESS ".format(self.mac))
+                print("PPPOE: {0} <--- CHAP SUCCESS ".format(self.mac))
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     # chap_success.show()

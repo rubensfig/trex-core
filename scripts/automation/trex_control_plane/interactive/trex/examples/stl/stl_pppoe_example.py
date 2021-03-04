@@ -147,7 +147,7 @@ def main ():
     print('How many PPPoE clients to create: ', end='')
     count = int(input())
 
-    pppoe_test = PPPoETest(0)
+    pppoe_test = PPPoETest([0,1])
     pppoe_test.run(count)
     
    
