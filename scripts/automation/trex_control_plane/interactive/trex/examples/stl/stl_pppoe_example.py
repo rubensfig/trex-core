@@ -44,6 +44,8 @@ class PPPoETest(object):
                 print('\nno clients have sucessfully registered...exiting...\n')
                 self.c.stop_capture(self.capture_id['id'], '/tmp/port_0_txrx.pcap')
                 exit(1)
+
+            self.c.set_service_mode(ports = self.port, enabled = False) # enables service mode on port = Rx packets not ignored
                 
             # inject traffic
             self.inject(clients)
@@ -79,8 +81,8 @@ class PPPoETest(object):
         for client in clients:
             record = client.get_record()
             base_pkt = Ether(src=record.client_mac, dst=record.server_mac) / \
-                       Dot1AD(record.s_tag) / \
-                       Dot1Q(record.c_tag) / \
+                       Dot1AD(vlan=record.s_tag) / \
+                       Dot1Q(vlan=record.c_tag) / \
                        PPPoE(sessionid=record.sid) / \
                        PPP(proto="Internet Protocol version 4") / \
                        IP(src=record.client_ip, dst='8.8.8.8') / \
