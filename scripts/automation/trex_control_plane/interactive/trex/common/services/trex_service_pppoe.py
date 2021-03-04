@@ -22,6 +22,7 @@ from scapy.layers.inet import IP, UDP
 from .trex_pppoetag import *
 from .trex_pppoetag import _PPP_lcptypes
 from scapy.layers.ppp import *
+from ipaddress import IPv4Address
 
 from collections import defaultdict
 import random
@@ -97,6 +98,11 @@ class ServicePPPOE(Service):
         # QinQ VLAN tags
         self.s_tag = s_tag
         self.c_tag = c_tag
+
+        #IP Address
+        self.ip = IPv4Address('192.168.0.1').packed
+ 
+ 
     def is_prom_required(self):
         return True
                 
