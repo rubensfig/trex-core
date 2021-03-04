@@ -93,8 +93,8 @@ class PPPoETest(object):
             streams.append(STLStream(packet = pkt, mode = STLTXCont(pps = 1000)))
         
         self.c.add_streams(ports = self.port, streams = streams)
-        self.c.start(ports = self.port, mult = '100%', synchronized=True)
-        # self.c.start(ports = self.port, mult = '100%', synchronized=False)
+        # self.c.start(ports = self.port, mult = '100%', synchronized=True)
+        self.c.start(ports = self.port, mult = '100%', synchronized=False)
         self.c.wait_on_traffic()
         
         print('\n*** Done ***\n')
@@ -147,7 +147,7 @@ def main ():
     print('How many PPPoE clients to create: ', end='')
     count = int(input())
 
-    pppoe_test = PPPoETest([0,1])
+    pppoe_test = PPPoETest(0])
     pppoe_test.run(count)
     
    
