@@ -300,7 +300,7 @@ class ServicePPPOE(Service):
                 mschap_pkt.ms_chap_id = challenge_id
                 mschap_pkt.challenge = value
                 mschap_pkt.response = crypto.challenge_response()
-                mschap_pkt.name = 'testing'
+                mschap_pkt.name = b'testing'
 
                 # send the request
                 print("PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac))
