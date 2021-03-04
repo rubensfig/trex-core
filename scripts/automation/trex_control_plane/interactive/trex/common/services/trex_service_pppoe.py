@@ -322,6 +322,9 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     # chap_success.show()
+                    if PPP_CHAP not in chap_sucess:
+                        self.pkt_queue.append( pkt )
+                        continue
                     if chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i['Success']:
                         self.auth_negotiated = True
 
