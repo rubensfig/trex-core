@@ -405,6 +405,88 @@ class PPP_CHAP_ChallengeResponse(PPP_CHAP):
             return super(PPP_CHAP_ChallengeResponse, self).mysummary()
 
 
+# PPP IPCP stuff (RFC 1332)
+
+# All IPCP options are defined below (names and associated classes)
+_PPP_ipcpopttypes = {1: "IP-Addresses (Deprecated)",
+                     2: "IP-Compression-Protocol",
+                     3: "IP-Address",
+                     # not implemented, present for completeness
+                     4: "Mobile-IPv4",
+                     129: "Primary-DNS-Address",
+                     130: "Primary-NBNS-Address",
+                     131: "Secondary-DNS-Address",
+                     132: "Secondary-NBNS-Address"}
+
+
+class PPP_IPCP_Option(Packet):
+    name = "PPP IPCP Option"
+    fields_desc = [
+        ByteEnumField("type", None, _PPP_ipcpopttypes),
+        FieldLenField("len", None, length_of="data", fmt="B",
+                      adjust=lambda _, val: val + 2),
+        StrLenField("data", "", length_from=lambda pkt: max(0, pkt.len - 2)),
+    ]
+
+    def extract_padding(self, pay):
+        return b"", pay
+
+    registered_options = {}
+
+    @classmethod
+    def register_variant(cls):
+        cls.registered_options[cls.type.default] = cls
+
+    @classmethod
+    def dispatch_hook(cls, _pkt=None, *args, **kargs):
+        if _pkt:
+            o = orb(_pkt[0])
+            return cls.registered_options.get(o, cls)
+        return cls
+
+
+class PPP_IPCP_Option_IPAddress(PPP_IPCP_Option):
+    name = "PPP IPCP Option: IP Address"
+    fields_desc = [
+        ByteEnumField("type", 3, _PPP_ipcpopttypes),
+        FieldLenField("len", None, length_of="data", fmt="B",
+                      adjust=lambda _, val: val + 2),
+        IPField("data", "0.0.0.0"),
+        StrLenField("garbage", "", length_from=lambda pkt: pkt.len - 6),
+    ]
+
+
+class PPP_IPCP_Option_DNS1(PPP_IPCP_Option_IPAddress):
+    name = "PPP IPCP Option: DNS1 Address"
+    type = 129
+
+
+class PPP_IPCP_Option_DNS2(PPP_IPCP_Option_IPAddress):
+    name = "PPP IPCP Option: DNS2 Address"
+    type = 131
+
+
+class PPP_IPCP_Option_NBNS1(PPP_IPCP_Option_IPAddress):
+    name = "PPP IPCP Option: NBNS1 Address"
+    type = 130
+
+
+class PPP_IPCP_Option_NBNS2(PPP_IPCP_Option_IPAddress):
+    name = "PPP IPCP Option: NBNS2 Address"
+    type = 132
+
+
+class PPP_IPCP(Packet):
+    fields_desc = [
+        ByteEnumField("code", 1, _PPP_conftypes),
+        XByteField("id", 0),
+        FieldLenField("len", None, fmt="H", length_of="options",
+                      adjust=lambda _, val: val + 4),
+        PacketListField("options", [], PPP_IPCP_Option,
+                        length_from=lambda pkt: pkt.len - 4)
+    ]
+
+
 
 bind_layers(PPPoED, PPPoED_Tags, type=1)
 bind_layers(PPP, PPP_LCP, proto=0xc021)
