@@ -287,18 +287,22 @@ class ServicePPPOE(Service):
                 pkts = [pkt['pkt'] for pkt in pkts]
 
                 challenge_id = 0
+                value = 0
                 for pkt in pkts:
                     chap = Ether(pkt)
                     if chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i['Challenge']:
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
-
+                        value = chap[PPP_CHAP_ChallengeResponse].value
+                
+                crypto = MSCHAPv2(challenge_id, value, value, 'testing', 'password')
+                print(crypto.challenge_response())
                 # send the request
                 print("PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac))
                 lcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
                           Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag) /  \
                           PPPoE(sessionid=self.session_id) / \
                           PPP(proto='Challenge Handshake Authentication Protocol') / \
-                          PPP_CHAP_ChallengeResponse(code=2, id=challenge_id, optional_name='testing', value='\xfd\xd6\xbd\xd1\xd9\x40\xf7\xa8\x27\xa3\x24\x1b\x29\xb9\x3e\x2f\x00\x00\x00\x00\x00\x00\x00\x00\x5a\x49\x4c\x65\x4a\x6d\xad\x97\x22\x4f\x64\xc5\x8e\xfd\xf0\xd2\x5e\xed\x37\x45\x36\x81\x02\x4b\x00')
+                          PPP_CHAP_ChallengeResponse(code=2, id=challenge_id, optional_name='testing', value='')
 
                 # lcp_req.show2()
                 yield pipe.async_tx_pkt(lcp_req)
