@@ -346,7 +346,7 @@ class ServicePPPOE(Service):
                                PPPoE(sessionid=self.session_id) / \
                                PPP(proto='Internet Protocol Control Protocol') / \
                                PPP_IPCP(code='Configure-Request', options=[PPP_IPCP_Option_IPAddress(data=self.ip)])
-                    ipcp_req.show()
+                    # ipcp_req.show()
                     yield pipe.async_tx_pkt(ipcp_req)
                 
                 # wait for response
