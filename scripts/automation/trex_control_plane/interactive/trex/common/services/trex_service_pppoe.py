@@ -317,7 +317,7 @@ class ServicePPPOE(Service):
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt['pkt'] for pkt in pkts]
 
-                self.auth_negotiated = false
+                self.auth_negotiated = False
                 print("PPPOE: {0} <--- CHAP SUCESS ".format(self.mac))
                 for pkt in pkts:
                     chap = Ether(pkt)
