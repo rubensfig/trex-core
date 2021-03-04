@@ -312,23 +312,21 @@ class ServicePPPOE(Service):
 
                 lcp_req.show()
                 yield pipe.async_tx_pkt(lcp_req)
-                
+
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt['pkt'] for pkt in pkts]
-                pkts.extend( self.pkt_queue )
 
+                self.auth_negotiated = false
+                print("PPPOE: {0} <--- CHAP SUCESS ".format(self.mac))
                 for pkt in pkts:
-                    lcp = Ether(pkt)
-                    if PPP_PAP_Response not in lcp:
-                        print("Error, wrong type of packet, putting it into queue")
-                        self.pkt_queue.append( pkt )
-                        continue
-                    if lcp[PPP_PAP_Response].code == PPP_PAP.code.s2i['Authenticate-Ack']:
-                        print("PPPOE: {0} <--- PAP CONF ACK".format(self.mac))
-                        self.state = 'IPCP'
-                        self.ip = '0.0.0.0'
-                continue
+                    chap = Ether(pkt)
+                    if chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i['Success']:
+                        self.auth_negotiated = True
+
+                if self.auth_negotiated == True:
+                    self.state = 'IPCP'
+                
             elif self.state == 'IPCP':
                 # send the request
                 if not self.ipcp_our_negotiated:
