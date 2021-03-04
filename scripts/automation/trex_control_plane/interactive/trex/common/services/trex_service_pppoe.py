@@ -100,7 +100,7 @@ class ServicePPPOE(Service):
         self.c_tag = c_tag
 
         #IP Address
-        self.ip = IPv4Address('192.151.10.1').packed
+        self.ip = IPv4Address('192.15.10.1').packed
  
  
     def is_prom_required(self):
