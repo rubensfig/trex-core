@@ -11,7 +11,7 @@ Author:
   Stanislav Zaikin
 
 """
-from ....external_libs.RADIUS-EAP-MSCHAPv2-Python-client.MSCHAPv2 import *
+from ....external_libs.radius_mschapv2.MSCHAPv2 import *
 from ...common.services.trex_service import Service, ServiceFilter
 from .trex_pppoe_parser import PPPOEParser
 from .trex_service_fast_parser import FastParser
