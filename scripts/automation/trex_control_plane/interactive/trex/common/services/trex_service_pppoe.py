@@ -296,15 +296,21 @@ class ServicePPPOE(Service):
                 
                 crypto = MSCHAPv2Crypto(challenge_id, value, value, b'testing', 'password')
                 print(crypto.challenge_response())
+                mschap_pkt = MSCHAPv2Packet(2)
+                mschap_pkt.ms_chap_id = challenge_id
+                mschap_pkt.challenge = value
+                mschap_pkt.response = crypto.challenge_response()
+                mschap_pkt.name = 'testing'
+
                 # send the request
                 print("PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac))
                 lcp_req = Ether(src=self.get_mac_bytes(), dst=self.ac_mac) / \
                           Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag) /  \
                           PPPoE(sessionid=self.session_id) / \
                           PPP(proto='Challenge Handshake Authentication Protocol') / \
-                          PPP_CHAP_ChallengeResponse(code=2, id=challenge_id, optional_name='testing', value=crypto.challenge_response())
+                          PPP_CHAP_ChallengeResponse(_pkt=mschap_pkt.__bytes__())
 
-                # lcp_req.show2()
+                lcp_req.show()
                 yield pipe.async_tx_pkt(lcp_req)
                 
                 # wait for response
