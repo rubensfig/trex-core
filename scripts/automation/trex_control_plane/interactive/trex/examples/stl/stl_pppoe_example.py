@@ -45,6 +45,7 @@ class PPPoETest(object):
                 self.c.stop_capture(self.capture_id['id'], '/tmp/port_0_txrx.pcap')
                 exit(1)
 
+            self.c.stop_capture(self.capture_id['id'], '/tmp/port_0_txrx_setup.pcap')
             self.c.set_service_mode(ports = self.port, enabled = False) # enables service mode on port = Rx packets not ignored
                 
             # inject traffic
