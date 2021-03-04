@@ -302,7 +302,7 @@ class ServicePPPOE(Service):
                           Dot1Q(vlan=self.s_tag) / Dot1Q(vlan=self.c_tag) /  \
                           PPPoE(sessionid=self.session_id) / \
                           PPP(proto='Challenge Handshake Authentication Protocol') / \
-                          PPP_CHAP_ChallengeResponse(code=2, id=challenge_id, optional_name='testing', value='')
+                          PPP_CHAP_ChallengeResponse(code=2, id=challenge_id, optional_name='testing', value=crypto.challenge_response())
 
                 # lcp_req.show2()
                 yield pipe.async_tx_pkt(lcp_req)
