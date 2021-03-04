@@ -100,7 +100,7 @@ class ServicePPPOE(Service):
         self.c_tag = c_tag
 
         #IP Address
-        self.ip = IPv4Address('192.168.0.1').packed
+        self.ip = IPv4Address('192.151.0.1').packed
  
  
     def is_prom_required(self):
@@ -346,7 +346,7 @@ class ServicePPPOE(Service):
                                PPPoE(sessionid=self.session_id) / \
                                PPP(proto='Internet Protocol Control Protocol') / \
                                PPP_IPCP(code='Configure-Request', options=[PPP_IPCP_Option_IPAddress(data=self.ip)])
-                    # ipcp_req.show2()
+                    ipcp_req.show()
                     yield pipe.async_tx_pkt(ipcp_req)
                 
                 # wait for response
