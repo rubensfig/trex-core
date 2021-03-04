@@ -321,7 +321,7 @@ class ServicePPPOE(Service):
                 print("PPPOE: {0} <--- CHAP SUCESS ".format(self.mac))
                 for pkt in pkts:
                     chap_success = Ether(pkt)
-                    chap.show()
+                    chap_success.show()
                     if chap_success[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i['Success']:
                         self.auth_negotiated = True
 
