@@ -310,7 +310,7 @@ class ServicePPPOE(Service):
                           PPP(proto='Challenge Handshake Authentication Protocol') / \
                           PPP_CHAP_ChallengeResponse(_pkt=mschap_pkt.__bytes__())
 
-                lcp_req.show()
+                # lcp_req.show()
                 yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
@@ -321,6 +321,7 @@ class ServicePPPOE(Service):
                 print("PPPOE: {0} <--- CHAP SUCESS ".format(self.mac))
                 for pkt in pkts:
                     chap = Ether(pkt)
+                    chap.show()
                     if chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i['Success']:
                         self.auth_negotiated = True
 
