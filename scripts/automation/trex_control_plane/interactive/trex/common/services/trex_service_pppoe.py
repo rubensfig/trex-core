@@ -216,11 +216,12 @@ class ServicePPPOE(Service):
                 self.tags = offer.tag_list
 
                 self.state = "REQUESTING"
+                self.retries = 5
                 continue
 
             # REQUEST state
             elif self.state == "REQUESTING":
-                self.retries = 5
+                self.retries -= 1
 
                 print("PPPOE: {0} ---> PADR".format(self.mac))
 
@@ -270,6 +271,7 @@ class ServicePPPOE(Service):
                     )
                 )
                 self.state = "LCP"
+                self.retries = 5
 
                 continue
 
@@ -322,13 +324,16 @@ class ServicePPPOE(Service):
                         yield pipe.async_tx_pkt(lcp)
                         self.lcp_peer_negotiated = True
 
-                        continue
-
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
+                    self.retries = 5
 
                 continue
             elif self.state == "AUTH":
+
+                self.retries -= 1
+                if (self.retries == 0) 
+                    break
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
                 # wait for response
