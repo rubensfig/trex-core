@@ -21,7 +21,7 @@ def random_mac(count):
     for i in range(count):
         fb = 0
         sb = 0
-        if c == 254:
+        if fb == 254:
             fb = 1
             sb = 0
 
