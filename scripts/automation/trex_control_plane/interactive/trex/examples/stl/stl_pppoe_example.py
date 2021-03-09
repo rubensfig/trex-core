@@ -117,24 +117,25 @@ class PPPoETest(object):
         
     def create_pppoe_clients(self, count):
         s_tag = 110
-        dhcps = [ServicePPPOE(mac=random_mac(),
+        pppoe_clts = [ServicePPPOE(mac=random_mac(),
                               verbose_level=ServicePPPOE.ERROR,
                               s_tag=s_tag,
                               c_tag=(100 + i)) for i in range(count)]
 
         # execute all the registered services
-        print('\n*** step 1: starting PPPoE acquire for {} clients ***\n'.format(len(dhcps)))
-        self.ctx.run(dhcps)
+        print('\n*** step 1: starting PPPoE acquire for {} clients ***\n'.format(len(pppoe_clts)))
+        for clt in pppoe_clts: 
+            self.ctx.run(clt)
         
         print('\n*** step 2: PPPoE acquire results ***\n')
-        for dhcp in dhcps:
+        for dhcp in pppoe_clts:
             record = dhcp.get_record()
             print('client: MAC {0} - DHCP: {1}'.format(dhcp.get_mac(),record))
         
         # filter those that succeeded
-        bounded_dhcps = [dhcp for dhcp in dhcps if dhcp.state == 'BOUND']
+        bounded_pppoe_clts = [dhcp for dhcp in pppoe_clts if dhcp.state == 'BOUND']
         
-        return bounded_dhcps
+        return bounded_pppoe_clts
         
     def release_dhcp_clients (self, clients):
         print('\n*** step 5: starting DHCP release for {} clients ***\n'.format(len(clients)))
