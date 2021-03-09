@@ -353,6 +353,8 @@ class ServicePPPOE(Service):
                 mschap_pkt.response = crypto.challenge_response()
                 mschap_pkt.name = b"testing"
 
+                del crypto
+
                 # send the request
                 print("PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac))
                 lcp_req = (
