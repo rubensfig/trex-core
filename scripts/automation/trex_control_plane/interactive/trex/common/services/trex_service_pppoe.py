@@ -135,7 +135,6 @@ class ServicePPPOE(Service):
         try:
             # while running under 'INIT' - perform acquire
             if self.state == "INIT":
-                try:
                     return self._acquire(pipe)
             elif self.state == "BOUND":
                 return self._release(pipe)
