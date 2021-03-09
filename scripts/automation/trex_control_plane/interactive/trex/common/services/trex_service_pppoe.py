@@ -187,7 +187,7 @@ class ServicePPPOE(Service):
                     pars = PPPOEParser()
                     ret = pars.parse(pkt)
 
-                    if ret.code == PPPOEParser.PADO and ret.srcmac == self.get_mac_bytes():
+                    if ret.code == PPPOEParser.PADO:
                         offers.append(ret)
 
                 if not offers:
@@ -200,6 +200,8 @@ class ServicePPPOE(Service):
                     continue
 
                 offer = offers[0]
+                for i in offers:
+                    print(offer.srcmac)
 
                 print(
                     "PPPOE: {0} <--- PADO from '{1}'".format(
