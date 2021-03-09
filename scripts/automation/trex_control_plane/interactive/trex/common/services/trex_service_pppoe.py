@@ -201,7 +201,7 @@ class ServicePPPOE(Service):
 
                 offer = offers[0]
                 for i in offers:
-                    print(offer.srcmac)
+                    print(bytes2mac(offer.dstmac))
 
                 print(
                     "PPPOE: {0} <--- PADO from '{1}'".format(
