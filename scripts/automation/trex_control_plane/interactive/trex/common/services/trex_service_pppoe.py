@@ -404,7 +404,6 @@ class ServicePPPOE(Service):
                         self.auth_negotiated = True
 
                 if self.auth_negotiated == True:
-
                     self.retries = 5
                     self.state = "IPCP"
 
