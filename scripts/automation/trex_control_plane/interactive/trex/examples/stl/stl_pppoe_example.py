@@ -17,7 +17,7 @@ wait_for_key = input
 
 def random_mac():
     c = partial(random.randint, 0, 255)
-    return "%02x:%02x:%02x:%02x:%02x:%02x" % (11, c(), c(), c(), c(), c())
+    return "%02x:%02x:%02x:%02x:%02x:%02x" % (210, c(), c(), c(), c(), c())
 
 
 def random_mac_range(count):
