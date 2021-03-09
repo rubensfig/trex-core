@@ -139,7 +139,7 @@ class PPPoETest(object):
                 s_tag=s_tag,
                 c_tag=i,
             )
-            for i,j  in mac_vlans
+            for i,j  in vlan_mac
         ]
 
         # execute all the registered services
