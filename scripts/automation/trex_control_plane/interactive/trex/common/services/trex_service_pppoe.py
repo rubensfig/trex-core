@@ -340,11 +340,11 @@ class ServicePPPOE(Service):
                     if PPP_CHAP_ChallengeResponse not in chap:
                         self.pkt_queue.append( pkt )
                         continue
-                    chap.show()
                     if (
                         chap[PPP_CHAP_ChallengeResponse].code
                         == PPP_CHAP.code.s2i["Challenge"]
                     ):
+                        chap.show()
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
 
