@@ -346,6 +346,7 @@ class ServicePPPOE(Service):
                     ):
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
+                        print(challenge_id, value)
 
                         break
 
