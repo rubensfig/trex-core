@@ -399,9 +399,16 @@ class ServicePPPOE(Service):
                         self.auth_negotiated = True
 
                 if self.auth_negotiated == True:
+
+                    self.retries = 5
                     self.state = "IPCP"
 
             elif self.state == "IPCP":
+
+                self.retries -= 1
+                if (self.retries == 0) :
+                    break
+
                 # send the request
                 if not self.ipcp_our_negotiated:
                     print("PPPOE: {0} ---> IPCP CONF REQ".format(self.mac))
