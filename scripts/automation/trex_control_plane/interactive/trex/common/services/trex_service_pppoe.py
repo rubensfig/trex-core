@@ -132,11 +132,15 @@ class ServicePPPOE(Service):
 
     def run(self, pipe):
 
-        # while running under 'INIT' - perform acquire
-        if self.state == "INIT":
-            return self._acquire(pipe)
-        elif self.state == "BOUND":
-            return self._release(pipe)
+        try:
+            # while running under 'INIT' - perform acquire
+            if self.state == "INIT":
+                try:
+                    return self._acquire(pipe)
+            elif self.state == "BOUND":
+                return self._release(pipe)
+        except ValueError:
+            pass
 
     def _acquire(self, pipe):
         """
