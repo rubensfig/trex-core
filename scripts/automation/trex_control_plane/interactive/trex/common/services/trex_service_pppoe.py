@@ -344,9 +344,10 @@ class ServicePPPOE(Service):
                         chap[PPP_CHAP_ChallengeResponse].code
                         == PPP_CHAP.code.s2i["Challenge"]
                     ):
-                        chap.show()
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
+
+                        break
 
                 crypto = MSCHAPv2Crypto(
                     challenge_id, value, value, b"testing", "password"
