@@ -23,7 +23,7 @@ def random_mac(count):
         sb = 0
         if fb == 254:
             fb = 1
-            sb = 0
+            sb = 1
 
         fb += i
         macs.append("%02x:%02x:%02x:%02x:%02x:%02x" % (210, 0, 0, 0, sb, fb))
@@ -138,16 +138,15 @@ class PPPoETest(object):
 
     def create_pppoe_clients(self, count):
         s_tag = 110
-        for i in range(count):
-            dhcps = [
-                ServicePPPOE(
-                    mac=random_mac(count),
-                    verbose_level=ServicePPPOE.ERROR,
-                    s_tag=s_tag,
-                    c_tag=(100 + i),
-                )
-                for i in range(count)
-            ]
+        dhcps = [
+            ServicePPPOE(
+                mac=i
+                verbose_level=ServicePPPOE.ERROR,
+                s_tag=s_tag,
+                c_tag=(100),
+            )
+            for i in random_mac(count)
+        ]
 
         # execute all the registered services
         print(
