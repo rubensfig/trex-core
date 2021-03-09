@@ -333,7 +333,7 @@ class ServicePPPOE(Service):
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
-                challenge_id = 1
+                challenge_id = 0
                 value = 0
                 for pkt in pkts:
                     chap = Ether(pkt)
@@ -352,6 +352,9 @@ class ServicePPPOE(Service):
                         print("\CHAP PACKET")
 
                         break
+
+                if challenge_id == 0 and value ==0:
+                    continue
 
                 crypto = MSCHAPv2Crypto(
                     challenge_id, value, value, b"testing", "password"
