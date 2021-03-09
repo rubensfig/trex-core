@@ -60,7 +60,9 @@ class ServiceFilterPPPOE(ServiceFilter):
     def lookup(self, pkt):
         # correct MAC is enough to verify ownership
         mac = Ether(pkt).dst
-        # print( 'Looking up for packet with dstmac: {0}'.format(mac))
+        print( 'Looking up for packet with dstmac: {0}'.format(mac))
+        for i in self.services:
+            print(i, mac)
         return self.services.get(mac, [])
 
     def get_bpf_filter(self):
