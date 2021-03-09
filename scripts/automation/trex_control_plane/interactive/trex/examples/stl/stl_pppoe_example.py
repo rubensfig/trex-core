@@ -129,14 +129,17 @@ class PPPoETest(object):
 
     def create_pppoe_clients(self, count):
         s_tag = 110
+        c_tag = 100
+        vlans = [(c_tag + i) for i in range(count)]
+        vlan_mac = zip(vlans, random_mac(count))
         dhcps = [
             ServicePPPOE(
-                mac=i,
+                mac=j,
                 verbose_level=ServicePPPOE.ERROR,
                 s_tag=s_tag,
-                c_tag=(100),
+                c_tag=i,
             )
-            for i in random_mac(count)
+            for i,j  in mac_vlans
         ]
 
         # execute all the registered services
