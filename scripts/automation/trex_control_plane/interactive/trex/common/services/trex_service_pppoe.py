@@ -61,8 +61,6 @@ class ServiceFilterPPPOE(ServiceFilter):
         # correct MAC is enough to verify ownership
         mac = Ether(pkt).dst
         print( 'Looking up for packet with dstmac: {0}'.format(mac))
-        for i in self.services:
-            print(i, mac)
         return self.services.get(mac, [])
 
     def get_bpf_filter(self):
@@ -189,7 +187,7 @@ class ServicePPPOE(Service):
                     pars = PPPOEParser()
                     ret = pars.parse(pkt)
 
-                    if ret.code == PPPOEParser.PADO:
+                    if ret.code == PPPOEParser.PADO and ret.srcmac == self.get_mac_bytes():
                         offers.append(ret)
 
                 if not offers:
