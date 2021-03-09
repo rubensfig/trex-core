@@ -15,15 +15,20 @@ except NameError:
 wait_for_key = input
 
 
-def random_mac():
-    fb = 0
-    sb = 0
-    if c == 254:
-        fb = 1
+def random_mac(count):
+    i = 0
+    macs = []
+    for i in range(count):
+        fb = 0
         sb = 0
+        if c == 254:
+            fb = 1
+            sb = 0
 
-    fb += 1
-    yield "%02x:%02x:%02x:%02x:%02x:%02x" % (210, 0, 0, 0, sb, fb)
+        fb += 1
+        macs.append("%02x:%02x:%02x:%02x:%02x:%02x" % (210, 0, 0, 0, sb, fb))
+
+    return macs
 
 
 def random_mac_range(count):
@@ -133,15 +138,16 @@ class PPPoETest(object):
 
     def create_pppoe_clients(self, count):
         s_tag = 110
-        dhcps = [
-            ServicePPPOE(
-                mac=random_mac(),
-                verbose_level=ServicePPPOE.ERROR,
-                s_tag=s_tag,
-                c_tag=(100 + i),
-            )
-            for i in range(count)
-        ]
+        for i in range(count):
+            dhcps = [
+                ServicePPPOE(
+                    mac=random_mac(count),
+                    verbose_level=ServicePPPOE.ERROR,
+                    s_tag=s_tag,
+                    c_tag=(100 + i),
+                )
+                for i in range(count)
+            ]
 
         # execute all the registered services
         print(
