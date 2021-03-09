@@ -25,7 +25,7 @@ def random_mac(count):
             fb = 1
             sb = 0
 
-        fb += 1
+        fb += i
         macs.append("%02x:%02x:%02x:%02x:%02x:%02x" % (210, 0, 0, 0, sb, fb))
 
     return macs
