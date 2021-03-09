@@ -353,7 +353,6 @@ class ServicePPPOE(Service):
                 mschap_pkt = MSCHAPv2Packet(2)
                 mschap_pkt.ms_chap_id = challenge_id
                 mschap_pkt.challenge = value
-                print(crypto)
                 mschap_pkt.response = crypto.challenge_response()
                 mschap_pkt.name = b"testing"
 
