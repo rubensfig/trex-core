@@ -322,6 +322,8 @@ class ServicePPPOE(Service):
                         yield pipe.async_tx_pkt(lcp)
                         self.lcp_peer_negotiated = True
 
+                        continue
+
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
 
