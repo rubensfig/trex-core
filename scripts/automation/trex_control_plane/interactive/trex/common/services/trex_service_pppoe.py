@@ -303,9 +303,9 @@ class ServicePPPOE(Service):
                     yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(1)
-                pkts = [pkt["pkt"] for pkt in pkts]
-                pkts.extend(self.pkt_queue)
+                # pkts = yield pipe.async_wait_for_pkt(1)
+                # pkts = [pkt["pkt"] for pkt in pkts]
+                # pkts.extend(self.pkt_queue)
 
                 for pkt in pkts:
                     lcp = Ether(pkt)
