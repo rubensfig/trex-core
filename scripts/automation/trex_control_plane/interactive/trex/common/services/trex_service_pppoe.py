@@ -332,6 +332,7 @@ class ServicePPPOE(Service):
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt["pkt"] for pkt in pkts]
+                pkts.extend(self.pkt_queue)
 
                 challenge_id = 0
                 value = 0
@@ -346,14 +347,10 @@ class ServicePPPOE(Service):
                     ):
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
-                        print(challenge_id, value)
-                        print("CHAP PACKET")
-                        chap.show()
-                        print("\CHAP PACKET")
 
                         break
 
-                if challenge_id == 0 and value ==0:
+                if challenge_id == 0 and value == 0:
                     continue
 
                 crypto = MSCHAPv2Crypto(
