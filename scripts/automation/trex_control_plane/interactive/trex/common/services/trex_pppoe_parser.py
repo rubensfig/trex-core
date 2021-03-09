@@ -62,7 +62,6 @@ class PPPOEParser(FastParser):
         service_name = b"\x01\x01\x00\x00"  
 
         options += service_name
-        print(options)
         tag = PPPoED_Tags(_pkt=options)
         return options
 
