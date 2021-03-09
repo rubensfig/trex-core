@@ -91,6 +91,9 @@ class ServicePPPOE(Service):
         # States for PPPoE
         self.session_id = 0
 
+        # States for CHAP
+        self.chap_got_challenge_id = False
+
         # States for LCP
         self.lcp_our_sent = False
         self.lcp_our_negotiated = False
@@ -350,10 +353,9 @@ class ServicePPPOE(Service):
                 mschap_pkt = MSCHAPv2Packet(2)
                 mschap_pkt.ms_chap_id = challenge_id
                 mschap_pkt.challenge = value
+                print(crypto)
                 mschap_pkt.response = crypto.challenge_response()
                 mschap_pkt.name = b"testing"
-
-                del crypto
 
                 # send the request
                 print("PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac))
