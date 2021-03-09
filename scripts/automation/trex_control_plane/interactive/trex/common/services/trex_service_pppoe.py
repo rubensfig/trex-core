@@ -333,7 +333,7 @@ class ServicePPPOE(Service):
                 pkts = yield pipe.async_wait_for_pkt(3)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
-                challenge_id = 0
+                challenge_id = 1
                 value = 0
                 for pkt in pkts:
                     chap = Ether(pkt)
