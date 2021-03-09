@@ -277,6 +277,11 @@ class ServicePPPOE(Service):
 
             elif self.state == "LCP":
 
+                # wait for response
+                pkts = yield pipe.async_wait_for_pkt(3)
+                pkts = [pkt["pkt"] for pkt in pkts]
+                pkts.extend(self.pkt_queue)
+
                 # send the request
                 if not self.lcp_our_negotiated:
                     print("PPPOE: {0} ---> LCP CONF REQ".format(self.mac))
@@ -297,10 +302,10 @@ class ServicePPPOE(Service):
                     # lcp_req.show2()
                     yield pipe.async_tx_pkt(lcp_req)
 
-                # wait for response
-                pkts = yield pipe.async_wait_for_pkt(3)
-                pkts = [pkt["pkt"] for pkt in pkts]
-                pkts.extend(self.pkt_queue)
+                # # wait for response
+                # pkts = yield pipe.async_wait_for_pkt(3)
+                # pkts = [pkt["pkt"] for pkt in pkts]
+                # pkts.extend(self.pkt_queue)
 
                 for pkt in pkts:
                     lcp = Ether(pkt)
