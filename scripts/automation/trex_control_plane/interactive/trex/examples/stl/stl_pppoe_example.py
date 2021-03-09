@@ -140,7 +140,7 @@ class PPPoETest(object):
         s_tag = 110
         dhcps = [
             ServicePPPOE(
-                mac=i
+                mac=i,
                 verbose_level=ServicePPPOE.ERROR,
                 s_tag=s_tag,
                 c_tag=(100),
