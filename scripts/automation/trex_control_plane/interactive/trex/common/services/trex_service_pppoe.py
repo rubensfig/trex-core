@@ -332,7 +332,7 @@ class ServicePPPOE(Service):
             elif self.state == "AUTH":
 
                 self.retries -= 1
-                if (self.retries == 0) 
+                if (self.retries == 0) :
                     break
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
