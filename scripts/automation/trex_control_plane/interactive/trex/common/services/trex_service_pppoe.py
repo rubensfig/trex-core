@@ -54,13 +54,13 @@ class ServiceFilterPPPOE(ServiceFilter):
         self.services = defaultdict(list)
 
     def add(self, service):
-        print("here {0}".format(service.get_mac()))
+        # print("here {0}".format(service.get_mac()))
         self.services[service.get_mac()].append(service)
 
     def lookup(self, pkt):
         # correct MAC is enough to verify ownership
         mac = Ether(pkt).dst
-        print( 'Looking up for packet with dstmac: {0}'.format(mac))
+        # print( 'Looking up for packet with dstmac: {0}'.format(mac))
         return self.services.get(mac, [])
 
     def get_bpf_filter(self):
@@ -334,6 +334,9 @@ class ServicePPPOE(Service):
                 value = 0
                 for pkt in pkts:
                     chap = Ether(pkt)
+                    if PPP_CHAP_ChallengeResponse not in chap:
+                        self.pkt_queue.append( pkt )
+                        continue
                     if (
                         chap[PPP_CHAP_ChallengeResponse].code
                         == PPP_CHAP.code.s2i["Challenge"]
