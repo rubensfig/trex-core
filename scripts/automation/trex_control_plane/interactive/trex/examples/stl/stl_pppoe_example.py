@@ -157,6 +157,8 @@ class PPPoETest(object):
 
         # filter those that succeeded
         bounded_dhcps = [dhcp for dhcp in dhcps if dhcp.state == "BOUND"]
+        
+        print("{0} clients bound out of {1} ".format(len(bounded_dhcps), count))
 
         return bounded_dhcps
 
