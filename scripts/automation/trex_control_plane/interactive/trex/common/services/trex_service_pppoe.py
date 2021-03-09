@@ -347,6 +347,9 @@ class ServicePPPOE(Service):
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
                         print(challenge_id, value)
+                        print("CHAP PACKET")
+                        chap.show()
+                        print("\CHAP PACKET")
 
                         break
 
