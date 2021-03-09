@@ -1,3 +1,4 @@
+# From https://github.com/mneitsabes/RADIUS-EAP-MSCHAPv2-Python-client
 import struct
 import hashlib
 import binascii
