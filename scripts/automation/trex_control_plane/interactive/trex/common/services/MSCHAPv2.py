@@ -225,6 +225,7 @@ class MSCHAPv2Crypto:
         :rtype: bytes
         """
         sha1_ctx = hashlib.sha1()
+        print(self.peer_challenge)
         sha1_ctx.update(self.peer_challenge)
         sha1_ctx.update(self.auth_challenge)
         sha1_ctx.update(self.username)
