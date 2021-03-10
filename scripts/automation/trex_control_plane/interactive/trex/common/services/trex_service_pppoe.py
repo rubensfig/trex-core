@@ -329,7 +329,6 @@ class ServicePPPOE(Service):
                 continue
             elif self.state == "AUTH":
                 self.retries -= 1
-
                 if (self.retries == 0) :
                     break
 
