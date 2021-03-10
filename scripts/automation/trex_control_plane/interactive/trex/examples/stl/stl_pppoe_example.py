@@ -41,7 +41,7 @@ class PPPoETest(object):
             )  # Force acquire ports, stop the traffic, remove all streams and clear stats
             self.c.set_port_attr(self.port, promiscuous=True)
             self.ctx = self.c.create_service_ctx(port=self.port)
-            self.capture_id = self.c.start_capture(tx_ports=0, rx_ports=0, mode="fixed")
+            self.capture_id = self.c.start_capture(tx_ports=0, rx_ports=0, mode="fixed", limit=10000)
 
             # create clients
             clients = self.setup(count)
@@ -132,7 +132,7 @@ class PPPoETest(object):
         c_tag = 100
         vlans = [(c_tag + i) for i in range(count)]
         vlan_mac = zip(vlans, random_mac(count))
-        dhcps = [
+        pppoe_clts = [
             ServicePPPOE(
                 mac=j,
                 verbose_level=ServicePPPOE.ERROR,
@@ -145,22 +145,22 @@ class PPPoETest(object):
         # execute all the registered services
         print(
             "\n*** step 1: starting PPPoE acquire for {} clients ***\n".format(
-                len(dhcps)
+                len(pppoe_clts)
             )
         )
-        self.ctx.run(dhcps)
+        self.ctx.run(pppoe_clts)
 
         print("\n*** step 2: PPPoE acquire results ***\n")
-        for dhcp in dhcps:
+        for dhcp in pppoe_clts:
             record = dhcp.get_record()
             print("client: MAC {0} - DHCP: {1}".format(dhcp.get_mac(), record))
 
         # filter those that succeeded
-        bounded_dhcps = [dhcp for dhcp in dhcps if dhcp.state == "BOUND"]
+        bounded_pppoe_clts = [dhcp for dhcp in pppoe_clts if dhcp.state == "BOUND"]
         
-        print("{0} clients bound out of {1} ".format(len(bounded_dhcps), count))
+        print("{0} clients bound out of {1} ".format(len(bounded_pppoe_clts), count))
 
-        return bounded_dhcps
+        return bounded_pppoe_clts
 
     def release_dhcp_clients(self, clients):
         print(

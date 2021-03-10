@@ -222,6 +222,8 @@ class ServicePPPOE(Service):
             # REQUEST state
             elif self.state == "REQUESTING":
                 self.retries -= 1
+                if self.retries == 0:
+                    break
 
                 print("PPPOE: {0} ---> PADR".format(self.mac))
 
@@ -252,6 +254,7 @@ class ServicePPPOE(Service):
                     if servs.code == PPPOEParser.PADS:
                         services.append(servs)
 
+
                 if not services:
                     print(
                         "PPPOE: {0} *** timeout on ack - retries left: {1}".format(
@@ -276,6 +279,9 @@ class ServicePPPOE(Service):
                 continue
 
             elif self.state == "LCP":
+                self.retries -= 1
+                if self.retries == 0:
+                    break
 
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(1)
@@ -301,11 +307,6 @@ class ServicePPPOE(Service):
                     )
                     # lcp_req.show2()
                     yield pipe.async_tx_pkt(lcp_req)
-
-                # wait for response
-                # pkts = yield pipe.async_wait_for_pkt(1)
-                # pkts = [pkt["pkt"] for pkt in pkts]
-                # pkts.extend(self.pkt_queue)
 
                 for pkt in pkts:
                     lcp = Ether(pkt)
@@ -335,10 +336,10 @@ class ServicePPPOE(Service):
 
                 continue
             elif self.state == "AUTH":
-
                 self.retries -= 1
                 if (self.retries == 0) :
                     break
+
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
                 # wait for response
