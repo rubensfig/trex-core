@@ -408,6 +408,10 @@ class ServicePPPOE(Service):
                 # if (self.retries == 0) :
                 #     break
 
+                # wait for response
+                pkts = yield pipe.async_wait_for_pkt(3)
+                pkts = [pkt["pkt"] for pkt in pkts]
+
                 # send the request
                 if not self.ipcp_our_negotiated:
                     print("PPPOE: {0} ---> IPCP CONF REQ".format(self.mac))
