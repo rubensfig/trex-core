@@ -7,6 +7,8 @@ from trex.common.services.trex_service_pppoe import ServicePPPOE
 
 from functools import partial
 
+import sys, getopt
+
 try:
     input = raw_input
 except NameError:
@@ -178,7 +180,10 @@ class PPPoETest(object):
 
 def main():
 
-    count = int(input("How many PPPoE clients to create: "))
+    count = 1
+
+    if sys.argv[1]:
+        count = sys.argv[1]
 
     pppoe_test = PPPoETest(0)
     pppoe_test.run(count)
