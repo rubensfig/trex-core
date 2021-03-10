@@ -20,7 +20,9 @@ def random_mac(count):
     macs = []
     for i in range(count):
         macs.append("02:00:00:%02x:%02x:%02x" % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-    return macs
+
+    unique_macs = set(macs)
+    return [i for i in unique_macs]
 
 def random_mac_range(count):
     return [random_mac() for _ in range(count)]
