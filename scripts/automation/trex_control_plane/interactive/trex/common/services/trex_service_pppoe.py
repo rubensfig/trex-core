@@ -328,6 +328,9 @@ class ServicePPPOE(Service):
 
                 continue
             elif self.state == "AUTH":
+                if (self.retries == 0) :
+                    break
+
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
                 # wait for response
