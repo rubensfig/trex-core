@@ -405,8 +405,8 @@ class ServicePPPOE(Service):
             elif self.state == "IPCP":
 
                 self.retries -= 1
-                if (self.retries == 0) :
-                    break
+                # if (self.retries == 0) :
+                #     break
 
                 # send the request
                 if not self.ipcp_our_negotiated:
