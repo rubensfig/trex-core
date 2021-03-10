@@ -182,11 +182,11 @@ def main():
 
     count = 1
 
-    if sys.argv[1]:
+    if sys.argv:
         count = sys.argv[1]
 
     pppoe_test = PPPoETest(0)
-    pppoe_test.run(count)
+    pppoe_test.run(int(count))
 
 
 if __name__ == "__main__":
