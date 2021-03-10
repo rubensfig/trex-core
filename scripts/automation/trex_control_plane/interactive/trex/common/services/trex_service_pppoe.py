@@ -152,7 +152,7 @@ class ServicePPPOE(Service):
         # main state machine loop
         self.state = "INIT"
         self.record = None
-        self.retries = 5
+        self.retries = 10
 
         while True:
 
