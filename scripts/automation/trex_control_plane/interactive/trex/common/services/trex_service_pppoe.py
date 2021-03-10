@@ -221,10 +221,6 @@ class ServicePPPOE(Service):
 
             # REQUEST state
             elif self.state == "REQUESTING":
-                self.retries -= 1
-                if self.retries == 0:
-                    break
-
                 print("PPPOE: {0} ---> PADR".format(self.mac))
 
                 padr = (
@@ -279,10 +275,6 @@ class ServicePPPOE(Service):
                 continue
 
             elif self.state == "LCP":
-                self.retries -= 1
-                if self.retries == 0:
-                    break
-
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
@@ -336,10 +328,6 @@ class ServicePPPOE(Service):
 
                 continue
             elif self.state == "AUTH":
-                self.retries -= 1
-                if (self.retries == 0) :
-                    break
-
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
                 # wait for response
