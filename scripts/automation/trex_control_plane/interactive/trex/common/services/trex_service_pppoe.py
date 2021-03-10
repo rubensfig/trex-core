@@ -429,10 +429,6 @@ class ServicePPPOE(Service):
                     # ipcp_req.show()
                     yield pipe.async_tx_pkt(ipcp_req)
 
-                # wait for response
-                pkts = yield pipe.async_wait_for_pkt(3)
-                pkts = [pkt["pkt"] for pkt in pkts]
-
                 for pkt in pkts:
                     ipcp = Ether(pkt)
                     if PPP_IPCP not in ipcp:
