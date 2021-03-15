@@ -280,6 +280,9 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     lcp = Ether(pkt)
 
+                    if PPP_LCP_Configure not in lcp:
+                        self.log("Error, wrong type of packet, putting it into queue")
+                        continue
                     if (
                         lcp[PPP_LCP_Configure].code
                         == PPP_LCP.code.s2i["Configure-Request"]
