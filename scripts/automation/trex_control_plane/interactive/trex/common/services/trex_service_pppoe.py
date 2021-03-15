@@ -277,6 +277,20 @@ class ServicePPPOE(Service):
 
             elif self.state == "LCP":
 
+                for pkt in pkts:
+                    if (
+                        lcp[PPP_LCP_Configure].code
+                        == PPP_LCP.code.s2i["Configure-Request"]
+                    ):
+                        print("PPPOE: {0} <--- LCP CONF REQ".format(self.mac))
+                        lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
+                        lcp[Ether].src = self.mac
+                        lcp[Ether].dst = self.ac_mac
+                        # lcp.show()
+                        print("PPPOE: {0} ---> LCP CONF ACK".format(self.mac))
+                        yield pipe.async_tx_pkt(lcp)
+                        self.lcp_peer_negotiated = True
+
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
