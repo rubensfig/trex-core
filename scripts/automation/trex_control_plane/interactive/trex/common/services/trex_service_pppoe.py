@@ -184,7 +184,7 @@ class ServicePPPOE(Service):
             elif self.state == "SELECTING":
 
                 # wait until packet arrives or timeout occurs
-                pkts = yield pipe.async_wait_for_pkt(4)
+                pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -240,7 +240,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(padr)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(4)
+                pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -342,7 +342,7 @@ class ServicePPPOE(Service):
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(3)
+                pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
                 pkts.extend(self.pkt_queue)
 
@@ -389,7 +389,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(3)
+                pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 self.auth_negotiated = False
@@ -431,7 +431,7 @@ class ServicePPPOE(Service):
                     yield pipe.async_tx_pkt(ipcp_req)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(3)
+                pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 for pkt in pkts:
