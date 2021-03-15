@@ -282,30 +282,6 @@ class ServicePPPOE(Service):
                 pkts = [pkt["pkt"] for pkt in pkts]
                 pkts.extend(self.pkt_queue)
 
-                # send the request
-                if not self.lcp_our_negotiated:
-                    print("PPPOE: {0} ---> LCP CONF REQ".format(self.mac))
-                    lcp_req = (
-                        Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
-                        / Dot1Q(vlan=self.s_tag)
-                        / Dot1Q(vlan=self.c_tag)
-                        / PPPoE(sessionid=self.session_id)
-                        / PPP(proto="Link Control Protocol")
-                        / PPP_LCP_Configure(
-                            code="Configure-Request",
-                            options=[
-                                PPP_LCP_MRU_Option(max_recv_unit=1492)
-                                / PPP_LCP_Magic_Number_Option(magic_number=0x13371337)
-                            ],
-                        )
-                    )
-                    # lcp_req.show2()
-                    yield pipe.async_tx_pkt(lcp_req)
-
-                # wait for response
-                # pkts = yield pipe.async_wait_for_pkt(1)
-                # pkts = [pkt["pkt"] for pkt in pkts]
-                # pkts.extend(self.pkt_queue)
 
                 for pkt in pkts:
                     lcp = Ether(pkt)
@@ -313,6 +289,24 @@ class ServicePPPOE(Service):
                         self.log("Error, wrong type of packet, putting it into queue")
                         self.pkt_queue.append(pkt)
                         continue
+                    if not self.lcp_our_negotiated:
+                        print("PPPOE: {0} ---> LCP CONF REQ".format(self.mac))
+                        lcp_req = (
+                            Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
+                            / Dot1Q(vlan=self.s_tag)
+                            / Dot1Q(vlan=self.c_tag)
+                            / PPPoE(sessionid=self.session_id)
+                            / PPP(proto="Link Control Protocol")
+                            / PPP_LCP_Configure(
+                                code="Configure-Request",
+                                options=[
+                                    PPP_LCP_MRU_Option(max_recv_unit=1492)
+                                    / PPP_LCP_Magic_Number_Option(magic_number=0x13371337)
+                                ],
+                            )
+                        )
+                        # lcp_req.show2()
+                        yield pipe.async_tx_pkt(lcp_req)
                     if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
                         print("PPPOE: {0} <--- LCP CONF ACK".format(self.mac))
                         self.lcp_our_negotiated = True
