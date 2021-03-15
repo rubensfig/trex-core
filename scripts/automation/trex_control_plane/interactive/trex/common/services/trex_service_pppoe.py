@@ -278,6 +278,8 @@ class ServicePPPOE(Service):
             elif self.state == "LCP":
 
                 for pkt in pkts:
+                    lcp = Ether(pkt)
+
                     if (
                         lcp[PPP_LCP_Configure].code
                         == PPP_LCP.code.s2i["Configure-Request"]
