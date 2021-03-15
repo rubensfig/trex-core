@@ -289,6 +289,22 @@ class ServicePPPOE(Service):
                         self.log("Error, wrong type of packet, putting it into queue")
                         self.pkt_queue.append(pkt)
                         continue
+                    if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
+                        print("PPPOE: {0} <--- LCP CONF ACK".format(self.mac))
+                        self.lcp_our_negotiated = True
+                    elif (
+                        lcp[PPP_LCP_Configure].code
+                        == PPP_LCP.code.s2i["Configure-Request"]
+                    ):
+                        print("PPPOE: {0} <--- LCP CONF REQ".format(self.mac))
+                        lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
+                        lcp[Ether].src = self.mac
+                        lcp[Ether].dst = self.ac_mac
+                        # lcp.show()
+                        print("PPPOE: {0} ---> LCP CONF ACK".format(self.mac))
+                        yield pipe.async_tx_pkt(lcp)
+                        self.lcp_peer_negotiated = True
+
                     if not self.lcp_our_negotiated:
                         print("PPPOE: {0} ---> LCP CONF REQ".format(self.mac))
                         lcp_req = (
@@ -307,21 +323,6 @@ class ServicePPPOE(Service):
                         )
                         # lcp_req.show2()
                         yield pipe.async_tx_pkt(lcp_req)
-                    if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
-                        print("PPPOE: {0} <--- LCP CONF ACK".format(self.mac))
-                        self.lcp_our_negotiated = True
-                    elif (
-                        lcp[PPP_LCP_Configure].code
-                        == PPP_LCP.code.s2i["Configure-Request"]
-                    ):
-                        print("PPPOE: {0} <--- LCP CONF REQ".format(self.mac))
-                        lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
-                        lcp[Ether].src = self.mac
-                        lcp[Ether].dst = self.ac_mac
-                        # lcp.show()
-                        print("PPPOE: {0} ---> LCP CONF ACK".format(self.mac))
-                        yield pipe.async_tx_pkt(lcp)
-                        self.lcp_peer_negotiated = True
 
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
