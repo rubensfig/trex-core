@@ -152,7 +152,7 @@ class ServicePPPOE(Service):
         # main state machine loop
         self.state = "INIT"
         self.record = None
-        self.retries = 5
+        self.retries = 10
 
         while True:
 
@@ -184,7 +184,7 @@ class ServicePPPOE(Service):
             elif self.state == "SELECTING":
 
                 # wait until packet arrives or timeout occurs
-                pkts = yield pipe.async_wait_for_pkt(1)
+                pkts = yield pipe.async_wait_for_pkt(2)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -258,7 +258,7 @@ class ServicePPPOE(Service):
                             self.mac, self.retries
                         )
                     )
-                    self.state = "INIT"
+                    # self.state = "INIT"
                     continue
 
                 # by default we choose the first one... usually there should be only one response
@@ -404,14 +404,19 @@ class ServicePPPOE(Service):
                         self.auth_negotiated = True
 
                 if self.auth_negotiated == True:
+
                     self.retries = 5
                     self.state = "IPCP"
 
             elif self.state == "IPCP":
 
                 self.retries -= 1
-                if (self.retries == 0) :
-                    break
+                # if (self.retries == 0) :
+                #     break
+
+                # wait for response
+                pkts = yield pipe.async_wait_for_pkt(2)
+                pkts = [pkt["pkt"] for pkt in pkts]
 
                 # send the request
                 if not self.ipcp_our_negotiated:
