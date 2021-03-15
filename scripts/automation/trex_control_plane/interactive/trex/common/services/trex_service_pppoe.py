@@ -282,9 +282,10 @@ class ServicePPPOE(Service):
                 pkts = [pkt["pkt"] for pkt in pkts]
                 pkts.extend(self.pkt_queue)
 
-
                 for pkt in pkts:
-                    lcp = Ether(pkt)
+                    # lcp = Ether(pkt)
+                    pars = PPPOEParser()
+                    lcp = pars.parse(pkt)
                     if PPP_LCP_Configure not in lcp:
                         self.log("Error, wrong type of packet, putting it into queue")
                         self.pkt_queue.append(pkt)
