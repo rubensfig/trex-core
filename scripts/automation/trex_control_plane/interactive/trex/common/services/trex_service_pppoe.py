@@ -356,11 +356,8 @@ class ServicePPPOE(Service):
                 if not self.chap_challenge:
                     for pkt in pkts:
                         chap = Ether(pkt)
-                        if PPP_CHAP_ChallengeResponse not in chap:
-                            self.pkt_queue.append( pkt )
-                            continue
                         if (
-                            chap[PPP_CHAP_ChallengeResponse].code
+                            chap[PPP_CHAP].code
                             == PPP_CHAP.code.s2i["Challenge"]
                         ):
                             self.challenge_id = chap[PPP_CHAP_ChallengeResponse].id
