@@ -277,24 +277,25 @@ class ServicePPPOE(Service):
 
             elif self.state == "LCP":
 
-                for pkt in pkts:
-                    lcp = Ether(pkt)
+                if not self.lcp_peer_negotiated:
+                    for pkt in pkts:
+                        lcp = Ether(pkt)
 
-                    if PPP_LCP_Configure not in lcp:
-                        self.log("Error, wrong type of packet, putting it into queue")
-                        continue
-                    if (
-                        lcp[PPP_LCP_Configure].code
-                        == PPP_LCP.code.s2i["Configure-Request"]
-                    ):
-                        print("PPPOE: {0} <--- LCP CONF REQ".format(self.mac))
-                        lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
-                        lcp[Ether].src = self.mac
-                        lcp[Ether].dst = self.ac_mac
-                        # lcp.show()
-                        print("PPPOE: {0} ---> LCP CONF ACK".format(self.mac))
-                        yield pipe.async_tx_pkt(lcp)
-                        self.lcp_peer_negotiated = True
+                        if PPP_LCP_Configure not in lcp:
+                            self.log("Error, wrong type of packet, putting it into queue")
+                            continue
+                        if (
+                            lcp[PPP_LCP_Configure].code
+                            == PPP_LCP.code.s2i["Configure-Request"]
+                        ):
+                            print("PPPOE: {0} <--- LCP CONF REQ".format(self.mac))
+                            lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
+                            lcp[Ether].src = self.mac
+                            lcp[Ether].dst = self.ac_mac
+                            # lcp.show()
+                            print("PPPOE: {0} ---> LCP CONF ACK".format(self.mac))
+                            yield pipe.async_tx_pkt(lcp)
+                            self.lcp_peer_negotiated = True
 
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(1)
