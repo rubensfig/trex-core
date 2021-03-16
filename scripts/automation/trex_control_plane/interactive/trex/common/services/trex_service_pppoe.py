@@ -355,13 +355,10 @@ class ServicePPPOE(Service):
                 self.retries -= 1
                 if (self.retries == 0) :
                     break
+
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(1)
-                pkts = [pkt["pkt"] for pkt in pkts]
-                pkts.extend(self.pkt_queue)
-
                 challenge_id = 0
                 value = 0
                 for pkt in pkts:
