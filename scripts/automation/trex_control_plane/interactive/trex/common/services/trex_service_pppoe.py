@@ -445,6 +445,9 @@ class ServicePPPOE(Service):
 
                 if not self.ipcp_peer_negotiated:
                     for pkt in pkts:
+                        ipcp = Ether(pkt)
+                        if PPP_IPCP not in ipcp:
+                            continue
                         if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Request"]:
                             print("PPPOE: {0} <--- IPCP CONF REQ".format(self.mac))
                             for opt in ipcp[PPP_IPCP].options:
