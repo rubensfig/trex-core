@@ -372,7 +372,6 @@ class ServicePPPOE(Service):
                     ):
                         challenge_id = chap[PPP_CHAP_ChallengeResponse].id
                         value = chap[PPP_CHAP_ChallengeResponse].value
-
                         break
 
                 if challenge_id == 0 and value == 0:
@@ -426,10 +425,6 @@ class ServicePPPOE(Service):
                 self.retries -= 1
                 # if (self.retries == 0) :
                 #     break
-
-                # wait for response
-                pkts = yield pipe.async_wait_for_pkt(2)
-                pkts = [pkt["pkt"] for pkt in pkts]
 
                 # send the request
                 if not self.ipcp_our_negotiated:
