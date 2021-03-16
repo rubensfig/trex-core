@@ -259,7 +259,7 @@ class ServicePPPOE(Service):
                             self.mac, self.retries
                         )
                     )
-                    # self.state = "INIT"
+                    self.state = "INIT"
                     continue
 
                 # by default we choose the first one... usually there should be only one response
