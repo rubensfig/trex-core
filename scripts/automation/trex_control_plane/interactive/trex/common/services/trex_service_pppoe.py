@@ -368,6 +368,9 @@ class ServicePPPOE(Service):
 
                             self.chap_challenge = True
 
+                if not self.chap_challenge:
+                    continue
+
                 crypto = MSCHAPv2Crypto(
                     self.challenge_id, self.value, self.value, b"testing", "password"
                 )  # USER DEFAULTS = testing/ password
