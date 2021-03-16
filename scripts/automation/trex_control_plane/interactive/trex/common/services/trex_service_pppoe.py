@@ -93,6 +93,7 @@ class ServicePPPOE(Service):
 
         # States for CHAP
         self.chap_got_challenge_id = False
+        self.chap_challenge = False
 
         # States for LCP
         self.lcp_our_sent = False
@@ -353,18 +354,20 @@ class ServicePPPOE(Service):
                 # wait for response
                 challenge_id = 0
                 value = 0
-                for pkt in pkts:
-                    chap = Ether(pkt)
-                    if PPP_CHAP_ChallengeResponse not in chap:
-                        self.pkt_queue.append( pkt )
-                        continue
-                    if (
-                        chap[PPP_CHAP_ChallengeResponse].code
-                        == PPP_CHAP.code.s2i["Challenge"]
-                    ):
-                        challenge_id = chap[PPP_CHAP_ChallengeResponse].id
-                        value = chap[PPP_CHAP_ChallengeResponse].value
-                        break
+                if not self.chap_challenge:
+                    for pkt in pkts:
+                        chap = Ether(pkt)
+                        if PPP_CHAP_ChallengeResponse not in chap:
+                            self.pkt_queue.append( pkt )
+                            continue
+                        if (
+                            chap[PPP_CHAP_ChallengeResponse].code
+                            == PPP_CHAP.code.s2i["Challenge"]
+                        ):
+                            challenge_id = chap[PPP_CHAP_ChallengeResponse].id
+                            value = chap[PPP_CHAP_ChallengeResponse].value
+
+                            self.chap_challenge = True
 
                 if challenge_id == 0 and value == 0:
                     continue
