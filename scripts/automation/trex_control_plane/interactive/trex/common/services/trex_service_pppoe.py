@@ -443,6 +443,21 @@ class ServicePPPOE(Service):
                     # ipcp_req.show()
                     yield pipe.async_tx_pkt(ipcp_req)
 
+                if not self.ipcp_peer_negotiated:
+                    for pkt in pkts:
+                        if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Request"]:
+                            print("PPPOE: {0} <--- IPCP CONF REQ".format(self.mac))
+                            for opt in ipcp[PPP_IPCP].options:
+                                if isinstance(opt, PPP_IPCP_Option_IPAddress):
+                                    self.ac_ip = opt.data
+                            ipcp[PPP_IPCP].code = PPP_IPCP.code.s2i["Configure-Ack"]
+                            ipcp[Ether].src = self.mac
+                            ipcp[Ether].dst = self.ac_mac
+                            # ipcp.show()
+                            print("PPPOE: {0} ---> IPCP CONF ACK".format(self.mac))
+                            yield pipe.async_tx_pkt(ipcp)
+                            self.ipcp_peer_negotiated = True
+
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
@@ -456,18 +471,6 @@ class ServicePPPOE(Service):
                     if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Ack"]:
                         print("PPPOE: {0} <--- IPCP CONF ACK".format(self.mac))
                         self.ipcp_our_negotiated = True
-                    elif ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Request"]:
-                        print("PPPOE: {0} <--- IPCP CONF REQ".format(self.mac))
-                        for opt in ipcp[PPP_IPCP].options:
-                            if isinstance(opt, PPP_IPCP_Option_IPAddress):
-                                self.ac_ip = opt.data
-                        ipcp[PPP_IPCP].code = PPP_IPCP.code.s2i["Configure-Ack"]
-                        ipcp[Ether].src = self.mac
-                        ipcp[Ether].dst = self.ac_mac
-                        # ipcp.show()
-                        print("PPPOE: {0} ---> IPCP CONF ACK".format(self.mac))
-                        yield pipe.async_tx_pkt(ipcp)
-                        self.ipcp_peer_negotiated = True
                     elif ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Nak"]:
                         for opt in ipcp[PPP_IPCP].options:
                             if isinstance(opt, PPP_IPCP_Option_IPAddress):
