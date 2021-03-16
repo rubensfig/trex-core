@@ -368,8 +368,11 @@ class ServicePPPOE(Service):
 
                             self.chap_challenge = True
 
+                if not self.chap_challenge:
+                    continue
+
                 crypto = MSCHAPv2Crypto(
-                    challenge_id, value, value, b"testing", "password"
+                    self.challenge_id, self.value, self.value, b"testing", "password"
                 )  # USER DEFAULTS = testing/ password
                 mschap_pkt = MSCHAPv2Packet(2)
                 mschap_pkt.ms_chap_id = self.challenge_id
