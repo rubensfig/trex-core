@@ -253,15 +253,6 @@ class ServicePPPOE(Service):
                     if servs.code == PPPOEParser.PADS:
                         services.append(servs)
 
-                if not services:
-                    print(
-                        "PPPOE: {0} *** timeout on ack - retries left: {1}".format(
-                            self.mac, self.retries
-                        )
-                    )
-                    self.state = "INIT"
-                    continue
-
                 # by default we choose the first one... usually there should be only one response
                 service = services[0]
                 self.session_id = service.sessionid
@@ -357,7 +348,6 @@ class ServicePPPOE(Service):
                     for pkt in pkts:
                         chap = Ether(pkt)
 
-                        chap.show()
                         if (PPP_CHAP_ChallengeResponse) not in chap:
                             continue
                         if (
