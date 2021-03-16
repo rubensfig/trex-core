@@ -356,6 +356,8 @@ class ServicePPPOE(Service):
                 if not self.chap_challenge:
                     for pkt in pkts:
                         chap = Ether(pkt)
+
+                        chap.show()
                         if (PPP_CHAP_ChallengeResponse) not in chap:
                             continue
                         if (
@@ -368,6 +370,9 @@ class ServicePPPOE(Service):
                             self.chap_challenge = True
 
                 if not self.chap_challenge:
+                    # wait for response
+                    pkts = yield pipe.async_wait_for_pkt(1)
+                    pkts = [pkt["pkt"] for pkt in pkts]
                     continue
 
                 crypto = MSCHAPv2Crypto(
@@ -401,7 +406,6 @@ class ServicePPPOE(Service):
                 print("PPPOE: {0} <--- CHAP SUCCESS ".format(self.mac))
                 for pkt in pkts:
                     chap_success = Ether(pkt)
-                    # chap_success.show()
                     if PPP_CHAP not in chap_success:
                         self.pkt_queue.append(pkt)
                         continue
