@@ -357,7 +357,7 @@ class ServicePPPOE(Service):
                     for pkt in pkts:
                         chap = Ether(pkt)
                         if (
-                            chap[PPP_CHAP].code
+                            chap[PPP_CHAP_ChallengeResponse].code
                             == PPP_CHAP.code.s2i["Challenge"]
                         ):
                             self.challenge_id = chap[PPP_CHAP_ChallengeResponse].id
