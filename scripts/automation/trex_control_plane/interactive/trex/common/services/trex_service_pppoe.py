@@ -73,7 +73,7 @@ class ServicePPPOE(Service):
     # PPPOE states
     INIT, SELECTING, REQUESTING, LCP, AUTH, IPCP, BOUND = range(7)
 
-    def __init__(self, mac, verbose_level=Service.ERROR, s_tag=None, c_tag=None):
+    def __init__(self, mac, verbose_level=Service.ERROR, s_tag=None, c_tag=None, username='testing', password='password'):
 
         # init the base object
         super(ServicePPPOE, self).__init__(verbose_level)

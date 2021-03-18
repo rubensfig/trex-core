@@ -4,10 +4,9 @@ from __future__ import print_function
 import stl_path
 from trex.stl.api import *
 from trex.common.services.trex_service_pppoe import ServicePPPOE
-
 from functools import partial
-
 import sys, getopt
+import argparse
 
 try:
     input = raw_input
@@ -31,9 +30,21 @@ def random_mac_range(count):
 
 
 class PPPoETest(object):
-    def __init__(self, port):
+    def __init__(self, args):
         self.port = port
         self.c = STLClient()
+
+        self.stag = args.stag
+        self.ctag = args.ctag
+
+        self.user = args.user
+        self.password = args.password
+
+        self.count = args.count
+        self.pkt_size = args.pktsize
+
+        self.port = 0
+
         # self.c.set_verbose("")
 
     def run(self, count):
@@ -48,7 +59,7 @@ class PPPoETest(object):
             self.capture_id = self.c.start_capture(tx_ports=0, rx_ports=0, mode="fixed", limit=50000)
 
             # create clients
-            clients = self.setup(count)
+            clients = self.setup()
             if not clients:
                 print("\nno clients have sucessfully registered...exiting...\n")
                 self.c.stop_capture(self.capture_id["id"], "/tmp/port_0_txrx.pcap")
@@ -72,13 +83,13 @@ class PPPoETest(object):
         finally:
             self.c.disconnect()
 
-    def setup(self, count):
+    def setup(self):
         # phase one - service context
         # create PPPoE clients
         self.c.set_service_mode(
             ports=self.port, enabled=True
         )  # enables service mode on port = Rx packets not ignored
-        clients = self.create_pppoe_clients(count)
+        clients = self.create_pppoe_clients()
         if not clients:
             return
 
@@ -95,7 +106,7 @@ class PPPoETest(object):
         )
 
         streams = []
-        data = ('ff ' * 128)
+        data = ('ff ' * self.pktsize)
         data_s = ''.join(data.split())
 
         for client in clients:
@@ -133,9 +144,12 @@ class PPPoETest(object):
         finally:
             self.c.set_service_mode(ports=self.port, enabled=False)
 
-    def create_pppoe_clients(self, count):
-        s_tag = 110
-        c_tag = 100
+    def create_pppoe_clients(self):
+        s_tag = self.stag
+        c_tag = self.ctag
+
+        count = self.count
+
         vlans = [(c_tag + i) for i in range(count)]
         vlan_mac = zip(vlans, random_mac(count))
         pppoe_clts = [
@@ -144,6 +158,8 @@ class PPPoETest(object):
                 verbose_level=ServicePPPOE.ERROR,
                 s_tag=s_tag,
                 c_tag=i,
+                username=self.user,
+                password=self.password,
             )
             for i,j  in vlan_mac
         ]
@@ -177,16 +193,24 @@ class PPPoETest(object):
         self.ctx.run(clients)
 
 
-def main():
+def parse_args():
+    parser = argparse.ArgumentParser(description='PPPoE script options')
+    parser.add_argument('--user', type=str, help='CHAP authentication user', dest='user', default='testing')
+    parser.add_argument('--password', type=str, help='CHAP authentication password', dest='password', default='password')
+    parser.add_argument('--s_tag', type=int, help='QnQ VLAN External Tag', dest='stag', default=50)
+    parser.add_argument('--first_c_tag', type=int, help='Client first QnQ VLAN Internal Tag', dest='ctag', default=100)
+    parser.add_argument('--count', type=int, help='Number of clients', dest='count', default=1)
+    parser.add_argument('--pkt_size', type=int, help='Size of data packets', dest='pktsize', default=128)
 
-    count = 1
+    return parser
 
-    if sys.argv:
-        count = sys.argv[1]
+def main(program_args):
 
-    pppoe_test = PPPoETest(0)
+    args = program_args.parse_args()
+    pppoe_test = PPPoETest(vars(args))
     pppoe_test.run(int(count))
 
 
 if __name__ == "__main__":
-    main()
+    program_args = parse_args()
+    main(program_args)
