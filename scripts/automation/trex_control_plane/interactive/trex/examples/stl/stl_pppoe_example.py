@@ -124,7 +124,6 @@ class PPPoETest(object):
         print("\n\nPress Return to release all DHCP clients...")
         wait_for_key()
 
-        print(self.capture_id)
         self.c.stop_capture(self.capture_id, "/tmp/port_0_rx.pcap")
         try:
             # move back to service mode for releasing DHCPs

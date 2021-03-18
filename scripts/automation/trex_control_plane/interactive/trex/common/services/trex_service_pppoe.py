@@ -241,7 +241,6 @@ class ServicePPPOE(Service):
                 self.state = "REQUESTING"
                 self.reset_state_retries()
                 continue
-
             # REQUEST state
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
@@ -297,7 +296,6 @@ class ServicePPPOE(Service):
                 self.reset_state_retries()
 
                 continue
-
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = 'INIT'
@@ -438,6 +436,7 @@ class ServicePPPOE(Service):
                     self.reset_state_retries()
                     self.state = "IPCP"
 
+                continue
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = 'INIT'
