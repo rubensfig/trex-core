@@ -456,7 +456,7 @@ class ServicePPPOE(Service):
                     for pkt in pkts:
                         ipcp = Ether(pkt)
                         if PPP_IPCP not in ipcp:
-                        self.pkt_queue.append( pkt )
+                            self.pkt_queue.append( pkt )
                             continue
                         if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Request"]:
                             self.log("PPPOE: {0} <--- IPCP CONF REQ".format(self.mac), level=Service.INFO)
