@@ -114,6 +114,10 @@ class ServicePPPOE(Service):
         # IP Address
         self.ip = "192.151.0.1"
 
+        # Retries
+        self.global_retries = 5
+        self.per_state_retries = 3
+
     def is_prom_required(self):
         return True
 
@@ -133,6 +137,24 @@ class ServicePPPOE(Service):
             self.err("invalid MAC format: {}".format(mac))
 
         return struct.pack("B" * 6, *[int(b, 16) for b in mac.split(":")])
+
+    def reset_state_retries(self):
+        self.per_state_retries = 3
+
+    def handle_state_retries(self):
+        if self.per_state_retries == 0:
+            return True
+
+        self.per_state_retries -= 1
+        return False
+
+    def handle_global_retries(self):
+        if self.global_retries == 0:
+            return True
+
+        self.global_retries -= 1
+        return False
+
 
     #########################  protocol state machines  #########################
 
@@ -162,10 +184,8 @@ class ServicePPPOE(Service):
             # INIT state
             if self.state == "INIT":
 
-                self.retries -= 1
-                if self.retries <= 0:
-                    break
-
+                self.handle_global_retries()
+                self.handle_state_retries()
                 print("PPPOE: {0} ---> PADI".format(self.mac))
 
                 pkt = Ether(src=self.get_mac_bytes(), dst="ff:ff:ff:ff:ff:ff")
@@ -181,10 +201,12 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(padi)
 
                 self.state = "SELECTING"
+                self.reset_state_retries()
                 continue
 
             # SELECTING state
             elif self.state == "SELECTING":
+                self.handle_state_retries()
 
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(1)
@@ -219,10 +241,12 @@ class ServicePPPOE(Service):
                 self.tags = offer.tag_list
 
                 self.state = "REQUESTING"
+                self.reset_state_retries()
                 continue
 
             # REQUEST state
             elif self.state == "REQUESTING":
+                self.handle_state_retries()
 
                 print("PPPOE: {0} ---> PADR".format(self.mac))
 
@@ -272,11 +296,13 @@ class ServicePPPOE(Service):
                     )
                 )
                 self.state = "LCP"
-                self.retries = 5
+                self.reset_state_retries()
 
                 continue
 
             elif self.state == "LCP":
+                self.handle_state_retries()
+
                 if not self.lcp_peer_negotiated:
                     for pkt in pkts:
                         lcp = Ether(pkt)
@@ -347,10 +373,12 @@ class ServicePPPOE(Service):
 
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
-                    self.retries = 5
+                    self.reset_state_retries()
 
                 continue
             elif self.state == "AUTH":
+                self.handle_state_retries()
+
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
                 if not self.chap_challenge:
@@ -412,11 +440,12 @@ class ServicePPPOE(Service):
                         self.auth_negotiated = True
 
                 if self.auth_negotiated == True:
-
-                    self.retries = 5
+                    self.reset_state_retries()
                     self.state = "IPCP"
 
             elif self.state == "IPCP":
+                self.handle_state_retries()
+
                 # send the request
                 if not self.ipcp_our_negotiated:
                     print("PPPOE: {0} ---> IPCP CONF REQ".format(self.mac))
@@ -476,6 +505,7 @@ class ServicePPPOE(Service):
                         )
 
                 if self.ipcp_our_negotiated and self.ipcp_peer_negotiated:
+                    self.reset_state_retries()
                     self.state = "BOUND"
                 continue
             elif self.state == "BOUND":
