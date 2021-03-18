@@ -142,14 +142,14 @@ class ServicePPPOE(Service):
         self.per_state_retries = 3
 
     def handle_state_retries(self):
-        if self.per_state_retries == 0:
+        if self.per_state_retries < 0:
             return True
 
         self.per_state_retries -= 1
         return False
 
     def handle_global_retries(self):
-        if self.global_retries == 0:
+        if self.global_retries < 0:
             return True
 
         self.global_retries -= 1
