@@ -355,6 +355,18 @@ class ServicePPPOE(Service):
                     if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
                         self.log("PPPOE: {0} <--- LCP CONF ACK".format(self.mac), level=Service.INFO)
                         self.lcp_our_negotiated = True
+                    elif (
+                        lcp[PPP_LCP_Configure].code
+                        == PPP_LCP.code.s2i["Configure-Request"]
+                    ):
+                        self.log("PPPOE: {0} <--- LCP CONF REQ".format(self.mac), level=Service.INFO)
+                        lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
+                        lcp[Ether].src = self.mac
+                        lcp[Ether].dst = self.ac_mac
+                        # lcp.show()
+                        self.log("PPPOE: {0} ---> LCP CONF ACK".format(self.mac), level=Service.INFO)
+                        yield pipe.async_tx_pkt(lcp)
+                        self.lcp_peer_negotiated = True
 
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
