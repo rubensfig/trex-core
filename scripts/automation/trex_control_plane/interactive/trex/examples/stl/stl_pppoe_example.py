@@ -112,7 +112,7 @@ class PPPoETest(object):
         )
 
         streams = []
-        data = "ff " * self.pktsize
+        data = "ff " * self.pkt_size
         data_s = "".join(data.split())
 
         for client in clients:
