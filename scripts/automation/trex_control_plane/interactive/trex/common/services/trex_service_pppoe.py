@@ -183,9 +183,10 @@ class ServicePPPOE(Service):
 
             # INIT state
             if self.state == "INIT":
-
-                self.handle_global_retries()
+                if self.handle_global_retries():
+                    break
                 self.handle_state_retries()
+
                 print("PPPOE: {0} ---> PADI".format(self.mac))
 
                 pkt = Ether(src=self.get_mac_bytes(), dst="ff:ff:ff:ff:ff:ff")
@@ -206,7 +207,8 @@ class ServicePPPOE(Service):
 
             # SELECTING state
             elif self.state == "SELECTING":
-                self.handle_state_retries()
+                if self.handle_state_retries():
+                    self.state = 'INIT'
 
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(1)
@@ -246,7 +248,8 @@ class ServicePPPOE(Service):
 
             # REQUEST state
             elif self.state == "REQUESTING":
-                self.handle_state_retries()
+                if self.handle_state_retries():
+                    self.state = 'INIT'
 
                 print("PPPOE: {0} ---> PADR".format(self.mac))
 
@@ -301,7 +304,8 @@ class ServicePPPOE(Service):
                 continue
 
             elif self.state == "LCP":
-                self.handle_state_retries()
+                if self.handle_state_retries():
+                    self.state = 'INIT'
 
                 if not self.lcp_peer_negotiated:
                     for pkt in pkts:
@@ -377,7 +381,8 @@ class ServicePPPOE(Service):
 
                 continue
             elif self.state == "AUTH":
-                self.handle_state_retries()
+                if self.handle_state_retries():
+                    self.state = 'INIT'
 
                 print("PPPOE: {0} <--- CHAP ".format(self.mac))
 
@@ -444,7 +449,8 @@ class ServicePPPOE(Service):
                     self.state = "IPCP"
 
             elif self.state == "IPCP":
-                self.handle_state_retries()
+                if self.handle_state_retries():
+                    self.state = 'INIT'
 
                 # send the request
                 if not self.ipcp_our_negotiated:
