@@ -34,14 +34,14 @@ class PPPoETest(object):
         self.port = port
         self.c = STLClient()
 
-        self.stag = args.stag
-        self.ctag = args.ctag
+        self.stag = args['stag']
+        self.ctag = args['ctag']
 
-        self.user = args.user
-        self.password = args.password
+        self.user = args['user']
+        self.password = args['password']
 
-        self.count = args.count
-        self.pkt_size = args.pktsize
+        self.count = args['count']
+        self.pkt_size = args['pktsize']
 
         self.port = 0
 
