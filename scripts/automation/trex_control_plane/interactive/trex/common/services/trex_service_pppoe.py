@@ -85,9 +85,6 @@ class ServicePPPOE(Service):
         self.record = None
         self.state = "INIT"
 
-        # Pkt queue
-        self.pkt_queue = []
-
         # States for PPPoE
         self.session_id = 0
 
@@ -186,7 +183,7 @@ class ServicePPPOE(Service):
                     break
                 self.handle_state_retries()
 
-                print("PPPOE: {0} ---> PADI".format(self.mac))
+                self.log("PPPOE: {0} ---> PADI".format(self.mac), level=Service.INFO)
 
                 pkt = Ether(src=self.get_mac_bytes(), dst="ff:ff:ff:ff:ff:ff")
                 if self.s_tag:
@@ -250,7 +247,7 @@ class ServicePPPOE(Service):
                 if self.handle_state_retries():
                     self.state = 'INIT'
 
-                print("PPPOE: {0} ---> PADR".format(self.mac))
+                # print("PPPOE: {0} ---> PADR".format(self.mac))
 
                 padr = (
                     Ether(src=self.get_mac(), dst=self.ac_mac)
@@ -310,7 +307,6 @@ class ServicePPPOE(Service):
                         lcp = Ether(pkt)
 
                         if PPP_LCP_Configure not in lcp:
-                            self.log("Error, wrong type of packet, putting it into queue")
                             continue
                         if (
                             lcp[PPP_LCP_Configure].code
@@ -347,14 +343,11 @@ class ServicePPPOE(Service):
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(1)
                 pkts = [pkt["pkt"] for pkt in pkts]
-                pkts.extend(self.pkt_queue)
 
                 for pkt in pkts:
                     lcp = Ether(pkt)
 
                     if PPP_LCP_Configure not in lcp:
-                        self.log("Error, wrong type of packet, putting it into queue")
-                        self.pkt_queue.append(pkt)
                         continue
                     if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
                         print("PPPOE: {0} <--- LCP CONF ACK".format(self.mac))
@@ -437,7 +430,6 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     if PPP_CHAP not in chap_success:
-                        self.pkt_queue.append(pkt)
                         continue
                     if chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]:
                         self.auth_negotiated = True
@@ -492,8 +484,6 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     ipcp = Ether(pkt)
                     if PPP_IPCP not in ipcp:
-                        print("Error, wrong type of packet, putting it into queue")
-                        self.pkt_queue.append(pkt)
                         continue
                     if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Ack"]:
                         print("PPPOE: {0} <--- IPCP CONF ACK".format(self.mac))
