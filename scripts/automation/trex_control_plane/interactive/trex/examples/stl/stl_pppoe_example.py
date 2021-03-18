@@ -208,7 +208,7 @@ def main(program_args):
 
     args = program_args.parse_args()
     pppoe_test = PPPoETest(vars(args))
-    pppoe_test.run(int(count))
+    pppoe_test.run()
 
 
 if __name__ == "__main__":
