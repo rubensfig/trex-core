@@ -11,6 +11,7 @@ Author:
   Stanislav Zaikin
 
 """
+from MSCHAPv2  import MSCHAPv2Crypto, MSCHAPv2Packet
 from ...common.services.trex_service import Service, ServiceFilter
 from .trex_pppoe_parser import PPPOEParser
 from .trex_service_fast_parser import FastParser
