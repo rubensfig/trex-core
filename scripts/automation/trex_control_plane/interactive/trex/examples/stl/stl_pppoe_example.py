@@ -47,7 +47,7 @@ class PPPoETest(object):
 
         # self.c.set_verbose("")
 
-    def run(self, count):
+    def run(self):
 
         try:
             self.c.connect()
