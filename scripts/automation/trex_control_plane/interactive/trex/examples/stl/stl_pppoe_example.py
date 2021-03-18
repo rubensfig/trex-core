@@ -20,10 +20,14 @@ def random_mac(count):
     i = 0
     macs = []
     for i in range(count):
-        macs.append("02:00:00:%02x:%02x:%02x" % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+        macs.append(
+            "02:00:00:%02x:%02x:%02x"
+            % (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        )
 
     unique_macs = set(macs)
     return [i for i in unique_macs]
+
 
 def random_mac_range(count):
     return [random_mac() for _ in range(count)]
@@ -34,14 +38,14 @@ class PPPoETest(object):
         self.port = port
         self.c = STLClient()
 
-        self.stag = args['stag']
-        self.ctag = args['ctag']
+        self.stag = args["stag"]
+        self.ctag = args["ctag"]
 
-        self.user = args['user']
-        self.password = args['password']
+        self.user = args["user"]
+        self.password = args["password"]
 
-        self.count = args['count']
-        self.pkt_size = args['pktsize']
+        self.count = args["count"]
+        self.pkt_size = args["pktsize"]
 
         self.port = 0
 
@@ -56,7 +60,9 @@ class PPPoETest(object):
             )  # Force acquire ports, stop the traffic, remove all streams and clear stats
             self.c.set_port_attr(self.port, promiscuous=True)
             self.ctx = self.c.create_service_ctx(port=self.port)
-            self.capture_id = self.c.start_capture(tx_ports=0, rx_ports=0, mode="fixed", limit=50000)
+            self.capture_id = self.c.start_capture(
+                tx_ports=0, rx_ports=0, mode="fixed", limit=50000
+            )
 
             # create clients
             clients = self.setup()
@@ -106,8 +112,8 @@ class PPPoETest(object):
         )
 
         streams = []
-        data = ('ff ' * self.pktsize)
-        data_s = ''.join(data.split())
+        data = "ff " * self.pktsize
+        data_s = "".join(data.split())
 
         for client in clients:
             record = client.get_record()
@@ -161,7 +167,7 @@ class PPPoETest(object):
                 username=self.user,
                 password=self.password,
             )
-            for i,j  in vlan_mac
+            for i, j in vlan_mac
         ]
 
         # execute all the registered services
@@ -179,7 +185,7 @@ class PPPoETest(object):
 
         # filter those that succeeded
         bounded_pppoe_clts = [dhcp for dhcp in pppoe_clts if dhcp.state == "BOUND"]
-        
+
         print("{0} clients bound out of {1} ".format(len(bounded_pppoe_clts), count))
 
         return bounded_pppoe_clts
@@ -194,15 +200,40 @@ class PPPoETest(object):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='PPPoE script options')
-    parser.add_argument('--user', type=str, help='CHAP authentication user', dest='user', default='testing')
-    parser.add_argument('--password', type=str, help='CHAP authentication password', dest='password', default='password')
-    parser.add_argument('--s_tag', type=int, help='QnQ VLAN External Tag', dest='stag', default=50)
-    parser.add_argument('--first_c_tag', type=int, help='Client first QnQ VLAN Internal Tag', dest='ctag', default=100)
-    parser.add_argument('--count', type=int, help='Number of clients', dest='count', default=1)
-    parser.add_argument('--pkt_size', type=int, help='Size of data packets', dest='pktsize', default=128)
+    parser = argparse.ArgumentParser(description="PPPoE script options")
+    parser.add_argument(
+        "--user",
+        type=str,
+        help="CHAP authentication user",
+        dest="user",
+        default="testing",
+    )
+    parser.add_argument(
+        "--password",
+        type=str,
+        help="CHAP authentication password",
+        dest="password",
+        default="password",
+    )
+    parser.add_argument(
+        "--s_tag", type=int, help="QnQ VLAN External Tag", dest="stag", default=50
+    )
+    parser.add_argument(
+        "--first_c_tag",
+        type=int,
+        help="Client first QnQ VLAN Internal Tag",
+        dest="ctag",
+        default=100,
+    )
+    parser.add_argument(
+        "--count", type=int, help="Number of clients", dest="count", default=1
+    )
+    parser.add_argument(
+        "--pkt_size", type=int, help="Size of data packets", dest="pktsize", default=128
+    )
 
     return parser
+
 
 def main(program_args):
 
