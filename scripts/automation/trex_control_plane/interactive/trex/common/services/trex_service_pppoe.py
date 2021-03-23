@@ -92,6 +92,7 @@ class ServicePPPOE(Service):
         self.mac_bytes = self.mac2bytes(mac)
         self.record = None
         self.state = "INIT"
+        self.timeout = 0.5
 
         # Pkt queue
         self.pkt_queue = []
@@ -217,7 +218,7 @@ class ServicePPPOE(Service):
                     self.state = "INIT"
 
                 # wait until packet arrives or timeout occurs
-                pkts = yield pipe.async_wait_for_pkt(1)
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -274,7 +275,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(padr)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(1)
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -362,7 +363,7 @@ class ServicePPPOE(Service):
                     yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(1)
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
                 pkts.extend(self.pkt_queue)
 
@@ -425,7 +426,7 @@ class ServicePPPOE(Service):
 
                 if not self.chap_challenge:
                     # wait for response
-                    pkts = yield pipe.async_wait_for_pkt(1)
+                    pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
                     continue
 
@@ -456,7 +457,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(1)
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
                 pkts.extend(self.pkt_queue)
 
@@ -530,7 +531,7 @@ class ServicePPPOE(Service):
                             self.ipcp_peer_negotiated = True
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(1)
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
                 self.pkt_queue.append(pkt)
 
