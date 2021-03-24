@@ -572,15 +572,16 @@ class ServicePPPOE(Service):
         Release the PPPOE lease
         """
         self.log("PPPOE: {0} ---> RELEASING".format(self.mac))
-        parser = PPPOEParser()
-
-        release_pkt = parser.release(
-            self.mac2bytes(self.record.client_mac),
-            self.mac2bytes(self.record.server_mac),
-            self.session_id
+        pkt = Ether(src=self.get_mac_bytes(), dst= self.mac2bytes(self.ac_mac))
+        if self.s_tag:
+            pkt = pkt / Dot1Q(vlan=self.s_tag)
+        if self.c_tag:
+            pkt = pkt / Dot1Q(vlan=self.c_tag)
+        padt = pkt / PPPoED(
+            version=1, type=1, code=PPPOEParser.PADT, sessionid=self.sessionid, len=0
         )
 
-        yield pipe.async_tx_pkt(release_pkt)
+        yield pipe.async_tx_pkt(padt)
 
         # clear the record
         self.record = None
