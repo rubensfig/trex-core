@@ -578,7 +578,7 @@ class ServicePPPOE(Service):
         if self.c_tag:
             pkt = pkt / Dot1Q(vlan=self.c_tag)
         padt = pkt / PPPoED(
-            version=1, type=1, code=PPPOEParser.PADT, sessionid=self.sessionid, len=0
+            version=1, type=1, code=PPPOEParser.PADT, sessionid=self.session_id, len=0
         )
 
         yield pipe.async_tx_pkt(padt)
