@@ -60,9 +60,9 @@ class PPPoETest(object):
             )  # Force acquire ports, stop the traffic, remove all streams and clear stats
             self.c.set_port_attr(self.port, promiscuous=True)
             self.ctx = self.c.create_service_ctx(port=self.port)
-            self.capture_id = self.c.start_capture(
-                tx_ports=0, rx_ports=0, mode="fixed", limit=50000
-            )
+            # self.capture_id = self.c.start_capture(
+            #     tx_ports=0, rx_ports=0, mode="fixed", limit=50000
+            # )
 
             # create clients
             clients = self.setup()
@@ -195,7 +195,7 @@ class PPPoETest(object):
             )
         )
         self.ctx.run(clients)
-        self.c.stop_capture(self.capture_id["id"], "/tmp/padt.pcap")
+        # self.c.stop_capture(self.capture_id["id"], "/tmp/padt.pcap")
 
 
 def parse_args():
