@@ -135,7 +135,7 @@ class PPPoETest(object):
 
         print("\n*** Done ***\n")
 
-    def teardown(self, clients=self.clients):
+    def teardown(self, clients):
         try:
             # move back to service mode for releasing DHCPs
             self.c.set_service_mode(ports=self.port, enabled=True)
