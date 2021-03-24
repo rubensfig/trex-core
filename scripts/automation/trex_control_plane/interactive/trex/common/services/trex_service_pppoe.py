@@ -572,6 +572,7 @@ class ServicePPPOE(Service):
         Release the PPPOE lease
         """
         self.log("PPPOE: {0} ---> RELEASING".format(self.mac))
+        parser = PPPOEParser()
 
         release_pkt = parser.release(
             self.xid,
