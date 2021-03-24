@@ -70,9 +70,9 @@ class PPPoETest(object):
                 print("\nno clients have sucessfully registered...exiting...\n")
                 exit(1)
 
-            self.c.set_service_mode(
-                ports=self.port, enabled=False
-            )  # enables service mode on port = Rx packets not ignored
+            # self.c.set_service_mode(
+            #     ports=self.port, enabled=False
+            # )  # enables service mode on port = Rx packets not ignored
 
             # inject traffic
             # self.inject(clients)
