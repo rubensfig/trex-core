@@ -68,10 +68,8 @@ class PPPoETest(object):
             clients = self.setup()
             if not clients:
                 print("\nno clients have sucessfully registered...exiting...\n")
-                self.c.stop_capture(self.capture_id["id"], "/tmp/port_0_txrx.pcap")
                 exit(1)
 
-            self.c.stop_capture(self.capture_id["id"], "/tmp/port_0_txrx_setup.pcap")
             self.c.set_service_mode(
                 ports=self.port, enabled=False
             )  # enables service mode on port = Rx packets not ignored
@@ -193,6 +191,7 @@ class PPPoETest(object):
             )
         )
         self.ctx.run(clients)
+        self.c.stop_capture(self.capture_id["id"], "/tmp/port_0_txrx_setup.pcap")
 
 
 def parse_args():
