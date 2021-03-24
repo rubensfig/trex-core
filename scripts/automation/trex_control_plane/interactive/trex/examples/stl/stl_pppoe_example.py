@@ -234,7 +234,10 @@ def main(program_args):
 
     args = program_args.parse_args()
     pppoe_test = PPPoETest(vars(args))
-    pppoe_test.run()
+    try:
+        pppoe_test.run()
+    except KeyboardInterrupt:
+        pppoe_test.teardown()
 
 
 if __name__ == "__main__":
