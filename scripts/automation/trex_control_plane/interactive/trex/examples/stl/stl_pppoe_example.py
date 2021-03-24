@@ -99,7 +99,7 @@ class PPPoETest(object):
 
         return clients
 
-    def inject(self, clients):
+    def inject(self):
         print("\n\nPress Return to generate high speed traffic from all clients...")
         wait_for_key()
 
@@ -135,7 +135,7 @@ class PPPoETest(object):
 
         print("\n*** Done ***\n")
 
-    def teardown(self, clients):
+    def teardown(self, clients=self.clients):
         try:
             # move back to service mode for releasing DHCPs
             self.c.set_service_mode(ports=self.port, enabled=True)
