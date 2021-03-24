@@ -95,7 +95,7 @@ class PPPOEParser(FastParser):
 
         return PacketBuffer(obj.raw())
 
-    def release(self, xid, client_mac, client_ip, server_mac, server_ip):
+    def release(self, client_mac, server_mac, session_id):
         """
         generate a release request packet
         """
@@ -106,6 +106,7 @@ class PPPOEParser(FastParser):
         obj = self.clone()
         obj.srcmac = client_mac
         obj.dstmac = server_mac
+        obj.session_id = session_id
         obj.code = self.PADT
 
         return PacketBuffer(obj.raw())

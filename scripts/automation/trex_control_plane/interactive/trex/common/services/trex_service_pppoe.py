@@ -577,9 +577,8 @@ class ServicePPPOE(Service):
         release_pkt = parser.release(
             self.xid,
             self.mac2bytes(self.record.client_mac),
-            ipv4_str_to_num(self.record.client_ip),
             self.mac2bytes(self.record.server_mac),
-            ipv4_str_to_num(self.record.server_ip),
+            self.session_id
         )
 
         yield pipe.async_tx_pkt(release_pkt)
