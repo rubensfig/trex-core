@@ -106,7 +106,7 @@ class PPPOEParser(FastParser):
         obj = self.clone()
         obj.srcmac = client_mac
         obj.dstmac = server_mac
-        obj.session_id = session_id
+        obj.sessionid = session_id
         obj.code = self.PADT
 
         return PacketBuffer(obj.raw())
