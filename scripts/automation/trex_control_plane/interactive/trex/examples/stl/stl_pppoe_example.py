@@ -77,7 +77,7 @@ class PPPoETest(object):
             )  # enables service mode on port = Rx packets not ignored
 
             # inject traffic
-            self.inject(clients)
+            # self.inject(clients)
 
             # teardown - release clients
             self.teardown(clients)
@@ -138,13 +138,9 @@ class PPPoETest(object):
         print("\n*** Done ***\n")
 
     def teardown(self, clients):
-        print("\n\nPress Return to release all DHCP clients...")
-        wait_for_key()
-
-        self.c.stop_capture(self.capture_id, "/tmp/port_0_rx.pcap")
         try:
             # move back to service mode for releasing DHCPs
-            self.c.set_service_mode(ports=self.port)
+            self.c.set_service_mode(ports=self.port, enabled=True)
             self.release_dhcp_clients(clients)
 
         finally:
