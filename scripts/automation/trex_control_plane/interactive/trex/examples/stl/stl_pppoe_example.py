@@ -140,6 +140,7 @@ class PPPoETest(object):
             # move back to service mode for releasing DHCPs
             self.c.set_service_mode(ports=self.port, enabled=True)
             self.release_dhcp_clients(clients)
+            self.c.stop_capture(self.capture_id["id"], "/tmp/padt.pcap")
 
         finally:
             self.c.set_service_mode(ports=self.port, enabled=False)
@@ -191,7 +192,6 @@ class PPPoETest(object):
             )
         )
         self.ctx.run(clients)
-        self.c.stop_capture(self.capture_id["id"], "/tmp/port_0_txrx_setup.pcap")
 
 
 def parse_args():
