@@ -36,9 +36,6 @@ class PPPOEParser(FastParser):
 
         self.add_field("Ethernet.dst", "dstmac")
         self.add_field("Ethernet.src", "srcmac")
-        self.add_field('IP.dst',      'dstip')
-        self.add_field('IP.src',      'srcip')
-        self.add_field('IP.chksum',   'chksum')
         self.add_field("PPP over Ethernet Discovery.code", "code")
         self.add_field("PPP over Ethernet Discovery.sessionid", "sessionid")
         self.add_field(
@@ -106,18 +103,9 @@ class PPPOEParser(FastParser):
         # generate a new packet
         obj = self.clone()
 
-        obj.dstmac = server_mac
-        obj.srcmac = client_mac
-
-        obj.dstip = server_ip
-        obj.srcip = client_ip
-
-        obj.fix_chksum()
-
-        obj.ciaddr = client_ip
-        obj.chaddr = client_mac
-        obj.xid = xid
-
-        obj.options = {"message-type": self.PADT, "server_id": server_ip}
+        obj = self.clone()
+        obj.srcmac = srcmac
+        obj.dstmac = dstmac
+        obj.code = self.PADT
 
         return PacketBuffer(obj.raw())
