@@ -170,7 +170,11 @@ class PPPoETest(object):
                 len(pppoe_clts)
             )
         )
-        self.ctx.run(pppoe_clts)
+        try:
+            self.ctx.run(pppoe_clts)
+        except KeyboardInterrupt:
+            self.teardown(pppoe_clts)
+            return
 
         print("\n*** step 2: PPPoE acquire results ***\n")
         for dhcp in pppoe_clts:
@@ -234,10 +238,7 @@ def main(program_args):
 
     args = program_args.parse_args()
     pppoe_test = PPPoETest(vars(args))
-    try:
-        pppoe_test.run()
-    except KeyboardInterrupt:
-        pppoe_test.teardown()
+    pppoe_test.run()
 
 
 if __name__ == "__main__":
