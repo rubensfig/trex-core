@@ -173,7 +173,8 @@ class PPPoETest(object):
         try:
             self.ctx.run(pppoe_clts)
         except KeyboardInterrupt:
-            self.teardown(pppoe_clts)
+            bounded_pppoe_clts = [dhcp for dhcp in pppoe_clts if dhcp.state == "BOUND"]
+            self.teardown(bounded_pppoe_clts)
             return
 
         print("\n*** step 2: PPPoE acquire results ***\n")
