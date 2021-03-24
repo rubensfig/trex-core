@@ -36,6 +36,9 @@ class PPPOEParser(FastParser):
 
         self.add_field("Ethernet.dst", "dstmac")
         self.add_field("Ethernet.src", "srcmac")
+        self.add_field('IP.dst',      'dstip')
+        self.add_field('IP.src',      'srcip')
+        self.add_field('IP.chksum',   'chksum')
         self.add_field("PPP over Ethernet Discovery.code", "code")
         self.add_field("PPP over Ethernet Discovery.sessionid", "sessionid")
         self.add_field(
@@ -73,7 +76,7 @@ class PPPOEParser(FastParser):
 
     def disc(self, mac):
         """
-        generates a DHCP discovery packet
+        generates a PPPoE discovery packet
         """
 
         # generate a new packet
@@ -115,6 +118,6 @@ class PPPOEParser(FastParser):
         obj.chaddr = client_mac
         obj.xid = xid
 
-        obj.options = {"message-type": 7, "server_id": server_ip}
+        obj.options = {"message-type": self.PADT, "server_id": server_ip}
 
         return PacketBuffer(obj.raw())
