@@ -575,7 +575,6 @@ class ServicePPPOE(Service):
         parser = PPPOEParser()
 
         release_pkt = parser.release(
-            self.xid,
             self.mac2bytes(self.record.client_mac),
             self.mac2bytes(self.record.server_mac),
             self.session_id
