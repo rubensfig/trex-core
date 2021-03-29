@@ -172,8 +172,6 @@ class ServicePPPOE(Service, threading.Thread):
         try:
             # while running under 'INIT' - perform acquire
             if self.state == "INIT":
-                t = thread.start_new_thread( _acquire, pipe )
-                t.join()
                 return self._acquire(pipe)
             elif self.state == "BOUND":
                 return self._release(pipe)
