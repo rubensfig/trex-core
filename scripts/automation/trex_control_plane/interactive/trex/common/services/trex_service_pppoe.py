@@ -23,7 +23,7 @@ from .trex_pppoetag import *
 from .trex_pppoetag import _PPP_lcptypes
 from scapy.layers.ppp import *
 from ipaddress import IPv4Address
-import thread
+import threading
 
 from collections import defaultdict
 import random
@@ -69,7 +69,7 @@ class ServiceFilterPPPOE(ServiceFilter):
 
 
 ################### internal ###################
-class ServicePPPOE(Service):
+class ServicePPPOE(Service, threading.Thread):
 
     # PPPOE states
     INIT, SELECTING, REQUESTING, LCP, AUTH, IPCP, BOUND = range(7)
