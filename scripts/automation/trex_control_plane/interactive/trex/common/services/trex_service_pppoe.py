@@ -23,6 +23,7 @@ from .trex_pppoetag import *
 from .trex_pppoetag import _PPP_lcptypes
 from scapy.layers.ppp import *
 from ipaddress import IPv4Address
+import thread
 
 from collections import defaultdict
 import random
@@ -171,6 +172,8 @@ class ServicePPPOE(Service):
         try:
             # while running under 'INIT' - perform acquire
             if self.state == "INIT":
+                t = thread.start_new_thread( _acquire, pipe )
+                t.join()
                 return self._acquire(pipe)
             elif self.state == "BOUND":
                 return self._release(pipe)
