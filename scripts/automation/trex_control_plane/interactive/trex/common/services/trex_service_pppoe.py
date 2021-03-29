@@ -367,13 +367,11 @@ class ServicePPPOE(Service):
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
-                pkts.extend(self.pkt_queue)
 
                 for pkt in pkts:
                     lcp = Ether(pkt)
 
                     if PPP_LCP_Configure not in lcp:
-                        self.pkt_queue.append(pkt)
                         continue
                     if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
                         self.log(
@@ -462,7 +460,6 @@ class ServicePPPOE(Service):
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
-                pkts.extend(self.pkt_queue)
 
                 self.auth_negotiated = False
                 self.log(
@@ -471,7 +468,6 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     if PPP_CHAP not in chap_success:
-                        self.pkt_queue.append(pkt)
                         continue
                     if chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]:
                         self.auth_negotiated = True
@@ -510,7 +506,6 @@ class ServicePPPOE(Service):
                     for pkt in pkts:
                         ipcp = Ether(pkt)
                         if PPP_IPCP not in ipcp:
-                            self.pkt_queue.append(pkt)
                             continue
                         if (
                             ipcp[PPP_IPCP].code
@@ -537,12 +532,10 @@ class ServicePPPOE(Service):
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
-                self.pkt_queue.append(pkt)
 
                 for pkt in pkts:
                     ipcp = Ether(pkt)
                     if PPP_IPCP not in ipcp:
-                        self.pkt_queue.append(pkt)
                         continue
                     if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Ack"]:
                         self.log(
