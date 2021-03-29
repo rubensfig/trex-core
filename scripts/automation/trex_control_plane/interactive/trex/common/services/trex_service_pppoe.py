@@ -216,6 +216,7 @@ class ServicePPPOE(Service):
             elif self.state == "SELECTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    continue
 
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
@@ -236,7 +237,7 @@ class ServicePPPOE(Service):
                             self.state, self.mac, self.global_retries
                         )
                     )
-                    self.state = "INIT"
+                    # self.state = "INIT"
                     continue
 
                 offer = offers[0]
@@ -257,6 +258,7 @@ class ServicePPPOE(Service):
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    continue
 
                 self.log("PPPOE: {0} ---> PADR".format(self.mac), level=Service.INFO)
 
@@ -312,6 +314,7 @@ class ServicePPPOE(Service):
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    continue
 
                 if not self.lcp_peer_negotiated:
                     for pkt in pkts:
@@ -406,6 +409,7 @@ class ServicePPPOE(Service):
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    continue
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
 
@@ -481,6 +485,7 @@ class ServicePPPOE(Service):
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    continue
 
                 # send the request
                 if not self.ipcp_our_negotiated:
