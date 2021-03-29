@@ -232,8 +232,8 @@ class ServicePPPOE(Service):
 
                 if not offers:
                     print(
-                        "PPPOE: {0} *** timeout on offers - retries left: {1}".format(
-                            self.mac, self.global_retries
+                        "PPPOE - {0}: {1} *** timeout on offers - retries left: {2}".format(
+                            self.state, self.mac, self.global_retries
                         )
                     )
                     self.state = "INIT"
@@ -289,8 +289,8 @@ class ServicePPPOE(Service):
 
                 if not services:
                     print(
-                        "PPPOE: {0} *** timeout on ack - retries left: {1}".format(
-                            self.mac, self.global_retries
+                        "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
+                            self.state, self.mac, self.global_retries
                         )
                     )
                     continue
