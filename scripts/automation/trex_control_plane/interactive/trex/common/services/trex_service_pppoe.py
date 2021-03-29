@@ -220,7 +220,7 @@ class ServicePPPOE(Service):
                     continue
 
                 # wait until packet arrives or timeout occurs
-                pkts = yield pipe.async_wait_for_pkt()
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -277,7 +277,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(padr)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt()
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -365,7 +365,7 @@ class ServicePPPOE(Service):
                     yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt()
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 for pkt in pkts:
@@ -427,7 +427,7 @@ class ServicePPPOE(Service):
 
                 if not self.chap_challenge:
                     # wait for response
-                    pkts = yield pipe.async_wait_for_pkt()
+                    pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
                     continue
 
@@ -458,7 +458,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt()
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 self.auth_negotiated = False
@@ -530,7 +530,7 @@ class ServicePPPOE(Service):
                             self.ipcp_peer_negotiated = True
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt()
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 for pkt in pkts:
