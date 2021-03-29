@@ -237,7 +237,6 @@ class ServicePPPOE(Service):
                             self.state, self.mac, self.global_retries
                         )
                     )
-                    # self.state = "INIT"
                     continue
 
                 offer = offers[0]
@@ -283,8 +282,7 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 services = []
                 for pkt in pkts:
-                    pars = PPPOEParser()
-                    servs = pars.parse(pkt)
+                    servs = Ether(pkt)
 
                     if servs.code == PPPOEParser.PADS:
                         services.append(servs)
@@ -303,7 +301,7 @@ class ServicePPPOE(Service):
 
                 self.log(
                     "PPPOE: {0} <--- PADS from AC '{1}' session_id: '{2}'".format(
-                        self.mac, bytes2mac(service.srcmac), self.session_id
+                        self.mac, bytes2mac(service.src), self.session_id
                     ),
                     level=Service.INFO,
                 )
