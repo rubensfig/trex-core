@@ -302,7 +302,7 @@ class ServicePPPOE(Service, threading.Thread):
 
                 self.log(
                     "PPPOE: {0} <--- PADS from AC '{1}' session_id: '{2}'".format(
-                        self.mac, bytes2mac(service.src), self.session_id
+                        self.mac, service.src, self.session_id
                     ),
                     level=Service.INFO,
                 )
