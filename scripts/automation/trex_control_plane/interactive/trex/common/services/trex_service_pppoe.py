@@ -69,7 +69,7 @@ class ServiceFilterPPPOE(ServiceFilter):
 
 
 ################### internal ###################
-class ServicePPPOE(Service, threading.Thread):
+class ServicePPPOE(Service):
 
     # PPPOE states
     INIT, SELECTING, REQUESTING, LCP, AUTH, IPCP, BOUND = range(7)
