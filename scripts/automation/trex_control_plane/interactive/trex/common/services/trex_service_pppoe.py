@@ -220,10 +220,8 @@ class ServicePPPOE(Service):
                     continue
 
                 # wait until packet arrives or timeout occurs
-                pkts = yield pipe.async_wait_for_pkt(self.timeout)
-                for i in pkts:
-                    print(self.mac, i['ts'])
-                pkts = [pkt["pkt"] for pkt in pkts]
+                pkts_arr = yield pipe.async_wait_for_pkt(self.timeout)
+                pkts = [pkt["pkt"] for pkt in pkts_arr]
 
                 # filter out the offer responses
                 offers = []
@@ -235,6 +233,8 @@ class ServicePPPOE(Service):
                         offers.append(ret)
 
                 if not offers:
+                    for i in pkts_arr:
+                        print(self.mac, i['ts'])
                     print(
                         "PPPOE - {0}: {1} *** timeout on offers - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
@@ -279,9 +279,7 @@ class ServicePPPOE(Service):
                 yield pipe.async_tx_pkt(padr)
 
                 # wait for response
-                pkts = yield pipe.async_wait_for_pkt(self.timeout)
-                for i in pkts:
-                    print(self.mac, i['ts'])
+                pkts_arr = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -293,6 +291,8 @@ class ServicePPPOE(Service):
                         services.append(servs)
 
                 if not services:
+                    for i in pkts_arr:
+                        print(self.mac, i['ts'])
                     print(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
