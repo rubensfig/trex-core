@@ -435,6 +435,7 @@ class ServicePPPOE(Service):
                 if not self.chap_challenge:
                     for pkt in pkts:
                         chap = Ether(pkt)
+                        chap.show()
 
                         if (PPP_CHAP_ChallengeResponse) not in chap:
                             continue
