@@ -93,7 +93,7 @@ class ServicePPPOE(Service):
         self.mac_bytes = self.mac2bytes(mac)
         self.record = None
         self.state = "INIT"
-        self.timeout = 0.5
+        self.timeout = 1
 
         # Pkt queue
         self.pkt_queue = []
