@@ -427,6 +427,7 @@ class ServicePPPOE(Service):
                             self.value = chap[PPP_CHAP_ChallengeResponse].value
 
                             self.chap_challenge = True
+                            break
 
                 if not self.chap_challenge:
                     # wait for response
@@ -449,12 +450,12 @@ class ServicePPPOE(Service):
                 mschap_pkt.response = crypto.challenge_response()
                 mschap_pkt.name = b"testing"
 
-                # send the request
+                # send the response
                 self.log(
                     "PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac),
                     level=Service.INFO,
                 )
-                lcp_req = (
+                chap_resp = (
                     Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
                     / Dot1Q(vlan=self.s_tag)
                     / Dot1Q(vlan=self.c_tag)
@@ -464,7 +465,7 @@ class ServicePPPOE(Service):
                 )
 
                 # lcp_req.show()
-                yield pipe.async_tx_pkt(lcp_req)
+                yield pipe.async_tx_pkt(chap_resp)
 
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
