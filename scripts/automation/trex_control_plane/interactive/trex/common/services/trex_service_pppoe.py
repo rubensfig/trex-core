@@ -483,7 +483,7 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     # handles getting the ipcp packet before CHAP success, we can move on
-                    if PPP_IPCP in chap_sucess:
+                    if PPP_IPCP in chap_success:
                         self.auth_negotiated = True
 
                     if PPP_CHAP not in chap_success:
