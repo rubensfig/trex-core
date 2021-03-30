@@ -233,8 +233,6 @@ class ServicePPPOE(Service):
                         offers.append(ret)
 
                 if not offers:
-                    for i in pkts_arr:
-                        print(self.mac, i['ts'])
                     print(
                         "PPPOE - {0}: {1} *** timeout on offers - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
@@ -253,6 +251,7 @@ class ServicePPPOE(Service):
                 self.ac_mac = bytes2mac(offer.srcmac)
                 self.tags = offer.tag_list
 
+                # HACK wait for PADO
                 pkts_arr = yield pipe.async_wait_for_pkt(0.2)
 
                 self.state = "REQUESTING"
@@ -293,8 +292,6 @@ class ServicePPPOE(Service):
                         services.append(servs)
 
                 if not services:
-                    for i in pkts_arr:
-                        print(self.mac, i['ts'], Ether(i['pkt']).show())
                     print(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
