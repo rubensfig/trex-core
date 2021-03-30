@@ -433,9 +433,6 @@ class ServicePPPOE(Service):
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
 
-                    for i in pkts_arr:
-                        print(self.mac, i['ts'], Ether(i['pkt']).show())
-
                     print(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
