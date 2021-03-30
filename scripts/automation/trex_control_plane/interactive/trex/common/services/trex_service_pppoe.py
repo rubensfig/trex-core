@@ -435,7 +435,6 @@ class ServicePPPOE(Service):
                 if not self.chap_challenge:
                     for pkt in pkts:
                         chap = Ether(pkt)
-                        chap.show()
 
                         if (PPP_CHAP_ChallengeResponse) not in chap:
                             continue
@@ -450,6 +449,9 @@ class ServicePPPOE(Service):
                             break
 
                 if not self.chap_challenge:
+                    
+                    for i in pkts:
+                        Ether(i).show()
                     # wait for response
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
