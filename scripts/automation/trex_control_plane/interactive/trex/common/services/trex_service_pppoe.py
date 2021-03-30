@@ -254,7 +254,7 @@ class ServicePPPOE(Service):
                 self.tags = offer.tag_list
 
                 # HACK handle second PADO
-                pkts_arr = yield pipe.async_wait_for_pkt(self.timeout)
+                pkts_arr = yield pipe.async_wait_for_pkt(0.1)
 
                 self.state = "REQUESTING"
                 self.reset_state_retries()
