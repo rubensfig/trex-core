@@ -253,8 +253,7 @@ class ServicePPPOE(Service):
                 self.ac_mac = bytes2mac(offer.srcmac)
                 self.tags = offer.tag_list
 
-                # HACK handle second PADO
-                pkts_arr = yield pipe.async_wait_for_pkt(0.1)
+                pkts_arr = yield pipe.async_wait_for_pkt()
 
                 self.state = "REQUESTING"
                 self.reset_state_retries()
@@ -437,6 +436,9 @@ class ServicePPPOE(Service):
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
 
+                    for i in pkts_arr:
+                        print(self.mac, i['ts'], Ether(i['pkt']).show())
+
                     print(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
@@ -481,6 +483,7 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     if PPP_CHAP not in chap_success:
+                        print(chap_success.show())
                         continue
                     if chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]:
                         self.auth_negotiated = True
