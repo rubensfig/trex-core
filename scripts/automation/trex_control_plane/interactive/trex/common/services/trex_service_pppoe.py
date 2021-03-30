@@ -253,7 +253,7 @@ class ServicePPPOE(Service):
                 self.ac_mac = bytes2mac(offer.srcmac)
                 self.tags = offer.tag_list
 
-                pkts_arr = yield pipe.async_wait_for_pkt()
+                pkts_arr = yield pipe.async_wait_for_pkt(0.2)
 
                 self.state = "REQUESTING"
                 self.reset_state_retries()
