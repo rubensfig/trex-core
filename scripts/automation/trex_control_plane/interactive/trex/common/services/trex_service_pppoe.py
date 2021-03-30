@@ -160,6 +160,25 @@ class ServicePPPOE(Service):
 
     def handle_global_retries(self):
         if self.global_retries <= 0:
+            # Reset states for PPPoE
+            self.session_id = 0
+
+            # Reset states for CHAP
+            self.chap_got_challenge_id = False
+            self.chap_challenge = False
+            self.challenge_id = 0
+            self.value = 0
+
+            # Reset states for LCP
+            self.lcp_our_sent = False
+            self.lcp_our_negotiated = False
+            self.lcp_peer_negotiated = False
+
+            # Reset states for IPCP
+            self.ipcp_our_sent = False
+            self.ipcp_our_negotiated = False
+            self.ipcp_peer_negotiated = False
+
             return True
 
         self.global_retries -= 1
