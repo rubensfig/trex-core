@@ -454,7 +454,7 @@ class ServicePPPOE(Service):
                     pkts = [pkt["pkt"] for pkt in pkts]
 
                     print(
-                        "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
+                        "PPPOE {0}: {1} *** timeout on auth - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
                         )
                     )
