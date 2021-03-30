@@ -449,9 +449,6 @@ class ServicePPPOE(Service):
                             break
 
                 if not self.chap_challenge:
-                    
-                    for i in pkts:
-                        Ether(i).show()
                     # wait for response
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
