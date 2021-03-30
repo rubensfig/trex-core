@@ -482,7 +482,7 @@ class ServicePPPOE(Service):
                 )
                 for pkt in pkts:
                     chap_success = Ether(pkt)
-                    if PPP_CHAP not in chap_success and PPP_IPCP not in ipcp:
+                    if PPP_CHAP not in chap_success and PPP_IPCP not in chap_success:
                         continue
                     if chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"] or PPP_IPCP in chap_sucess:
                         self.auth_negotiated = True
