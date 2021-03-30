@@ -412,10 +412,6 @@ class ServicePPPOE(Service):
                     self.state = "INIT"
                     continue
 
-                # wait for response
-                pkts = yield pipe.async_wait_for_pkt(self.timeout)
-                pkts = [pkt["pkt"] for pkt in pkts]
-
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
 
                 if not self.chap_challenge:
@@ -434,6 +430,10 @@ class ServicePPPOE(Service):
                             self.chap_challenge = True
 
                 if not self.chap_challenge:
+                    # wait for response
+                    pkts = yield pipe.async_wait_for_pkt(self.timeout)
+                    pkts = [pkt["pkt"] for pkt in pkts]
+
                     print(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
                             self.state, self.mac, self.global_retries
