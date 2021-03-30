@@ -253,6 +253,9 @@ class ServicePPPOE(Service):
                 self.ac_mac = bytes2mac(offer.srcmac)
                 self.tags = offer.tag_list
 
+                # HACK handle second PADO
+                pkts_arr = yield pipe.async_wait_for_pkt(self.timeout)
+
                 self.state = "REQUESTING"
                 self.reset_state_retries()
                 continue
