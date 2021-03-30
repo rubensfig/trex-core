@@ -221,6 +221,8 @@ class ServicePPPOE(Service):
 
                 # wait until packet arrives or timeout occurs
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
+                for i in pkts:
+                    print(self.mac, i['ts'])
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
@@ -278,6 +280,8 @@ class ServicePPPOE(Service):
 
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
+                for i in pkts:
+                    print(self.mac, i['ts'])
                 pkts = [pkt["pkt"] for pkt in pkts]
 
                 # filter out the offer responses
