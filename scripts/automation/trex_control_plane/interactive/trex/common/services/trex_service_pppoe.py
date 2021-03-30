@@ -280,7 +280,7 @@ class ServicePPPOE(Service):
 
                 # wait for response
                 pkts_arr = yield pipe.async_wait_for_pkt(self.timeout)
-                pkts = [pkt["pkt"] for pkt in pkts]
+                pkts = [pkt["pkt"] for pkt in pkts_arr]
 
                 # filter out the offer responses
                 services = []
