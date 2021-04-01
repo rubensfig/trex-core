@@ -2,13 +2,49 @@
 PPPoE service implementation
 
 Description:
-    <FILL ME HERE>
+    This script implements the PPPoE State Machine. This state machineis meant to be run
+    with the TRex traffic generator. 
+
+    The script is currently implementing:
+        - PPPoE PADX packet exchanges
+        - LCP negotiation
+        - CHAP authentication
+        - IPCP negotiation
+        - Session termination
+
+    The script currently is run with the intent of setting up PPPoE sessions to provide a 
+    TRex app to test a dataplane with a certain number of clients. Each instance of this
+    state machine only setups one one client, so having many clients must be handled from
+    outside the script. 
+
+    A hard limitation is the number of packets per second that can be queued for TX from 
+    multiple clients. Currently there is a limit of 100 pps that can be queued. This has
+    effects on the delays of sent packets, which will break can break provisioning, if the
+    accel-ppp server has timeouts on the various states of client setup.
+
+    After the client is bound and test is run, calling the run script again will
+    free the client from the session by sending the PADT.
 
 How to use:
-    <FILL ME HERE>
+    ServicePPPOE(
+        mac=XX:XX:XX:XX:XX:XX,
+        verbose_level=ServicePPPOE.ERROR,
+        s_tag=100,
+        c_tag=10,
+        username='testing'
+        password='password',
+    )
+
+    Create an instance of this Service Implementation by calling the above class creation, and run
+
+    self.ctx = self.c.create_service_ctx(port=self.port)
+    ...
+
+    self.ctx.run(clients)
+
     
-Author:
-  Stanislav Zaikin
+Authors:
+  Adapted from Stanislav Zaikin, Rubens Figueiredo
 
 """
 from radius_eap_mschapv2.MSCHAPv2 import MSCHAPv2Crypto, MSCHAPv2Packet
