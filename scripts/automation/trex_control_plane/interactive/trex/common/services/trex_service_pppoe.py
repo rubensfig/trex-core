@@ -337,7 +337,7 @@ class ServicePPPOE(Service):
                 service_name = PPPoED_Tags()
                 service_name.tag_type = 0x0101
                 service_name.tag_value = b""
-                padr.tag_list = self.tags
+                padr.tag_list = self.tags + service_name
 
                 # send the request
                 yield pipe.async_tx_pkt(padr)
