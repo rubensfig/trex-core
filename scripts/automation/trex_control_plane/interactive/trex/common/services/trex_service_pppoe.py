@@ -113,8 +113,8 @@ class ServicePPPOE(Service):
         verbose_level=Service.ERROR,
         s_tag=None,
         c_tag=None,
-        username = "testing",
-        password = "password",
+        username="testing",
+        password="password",
     ):
 
         # init the base object
@@ -128,14 +128,11 @@ class ServicePPPOE(Service):
         self.state = "INIT"
         self.timeout = 1
 
-        # Pkt queue
-        self.pkt_queue = []
-
         # States for PPPoE
         self.session_id = 0
 
         # States for CHAP
-        self.username = username
+        self.username = username.encode()
         self.password = password
         self.chap_got_challenge_id = False
         self.chap_challenge = False
@@ -143,7 +140,6 @@ class ServicePPPOE(Service):
         self.chap_value = 0
 
         # States for LCP
-        self.lcp_our_sent = False
         self.lcp_our_negotiated = False
         self.lcp_peer_negotiated = False
 
@@ -205,7 +201,6 @@ class ServicePPPOE(Service):
             self.chap_value = 0
 
             # Reset states for LCP
-            self.lcp_our_sent = False
             self.lcp_our_negotiated = False
             self.lcp_peer_negotiated = False
 
@@ -248,7 +243,12 @@ class ServicePPPOE(Service):
                 if self.handle_global_retries():
                     break
                 if self.handle_state_retries():
-                    self.log("PPPOE {0}: {1} retry {2} ---> PADI".format(self.state, self.mac, self.global_retries), level=Service.ERROR)
+                    self.log(
+                        "PPPOE {0}: {1} retry {2} ---> PADI".format(
+                            self.state, self.mac, self.global_retries
+                        ),
+                        level=Service.ERROR,
+                    )
 
                 self.log("PPPOE: {0} ---> PADI".format(self.mac), level=Service.INFO)
 
@@ -291,7 +291,8 @@ class ServicePPPOE(Service):
                     self.log(
                         "PPPOE - {0}: {1} *** timeout on offers - retries left: {2}".format(
                             self.state, self.mac, self.per_state_retries
-                        ), level=Service.ERROR
+                        ),
+                        level=Service.ERROR,
                     )
                     continue
 
@@ -316,7 +317,12 @@ class ServicePPPOE(Service):
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
+                    self.log(
+                        "PPPOE - {0}: {1} resetting state".format(
+                            self.state, self.mac, self.per_state_retries
+                        ),
+                        level=Service.ERROR,
+                    )
                     continue
 
                 self.log("PPPOE: {0} ---> PADR".format(self.mac), level=Service.INFO)
@@ -350,7 +356,8 @@ class ServicePPPOE(Service):
                     self.log(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
                             self.state, self.mac, self.per_state_retries
-                        ), level=Service.ERROR
+                        ),
+                        level=Service.ERROR,
                     )
                     continue
 
@@ -371,9 +378,24 @@ class ServicePPPOE(Service):
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
+                    self.log(
+                        "PPPOE - {0}: {1} resetting state".format(
+                            self.state, self.mac, self.per_state_retries
+                        ),
+                        level=Service.ERROR,
+                    )
                     continue
 
+                # When handling LCP, the client expects a LCP Configuration
+                # Request from the remote server, and the client must send 
+                # the same message as well, although the fields differ
+                # Since the incoming config request comes shortly after 
+                # the PADS, we process any possible messages before 
+                # blocking the thread, to ensure we respond to the first LCP
+                # In the script, the variable lcp_peer_negotiated handles 
+                # the config request from the server, and subsequent ACK
+                # from the client; while lcp_our_negotiated handles the
+                # config request from the client, and subsequent ack from the server
                 if not self.lcp_peer_negotiated:
                     for pkt in pkts:
                         lcp = Ether(pkt)
@@ -393,7 +415,6 @@ class ServicePPPOE(Service):
                             ]
                             lcp[Ether].src = self.mac
                             lcp[Ether].dst = self.ac_mac
-                            # lcp.show()
                             self.log(
                                 "PPPOE: {0} ---> LCP CONF ACK".format(self.mac),
                                 level=Service.INFO,
@@ -420,7 +441,6 @@ class ServicePPPOE(Service):
                             ],
                         )
                     )
-                    # lcp_req.show2()
                     yield pipe.async_tx_pkt(lcp_req)
 
                 # wait for response
@@ -464,7 +484,12 @@ class ServicePPPOE(Service):
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
+                    self.log(
+                        "PPPOE - {0}: {1} resetting state".format(
+                            self.state, self.mac, self.per_state_retries
+                        ),
+                        level=Service.ERROR,
+                    )
                     continue
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
@@ -493,12 +518,17 @@ class ServicePPPOE(Service):
                     self.log(
                         "PPPOE {0}: {1} *** timeout on auth - retries left: {2}".format(
                             self.state, self.mac, self.per_state_retries
-                        ), level=Service.ERROR
+                        ),
+                        level=Service.ERROR,
                     )
                     continue
 
                 crypto = MSCHAPv2Crypto(
-                    self.chap_challenge_id, self.chap_value, self.chap_value, self.username, self.password
+                    self.chap_challenge_id,
+                    self.chap_value,
+                    self.chap_value,
+                    self.username,
+                    self.password,
                 )  # USER DEFAULTS = testing/ password
                 mschap_pkt = MSCHAPv2Packet(2)
                 mschap_pkt.ms_chap_id = self.chap_challenge_id
@@ -520,7 +550,6 @@ class ServicePPPOE(Service):
                     / PPP_CHAP_ChallengeResponse(_pkt=mschap_pkt.__bytes__())
                 )
 
-                # lcp_req.show()
                 yield pipe.async_tx_pkt(chap_resp)
 
                 # wait for response
@@ -550,7 +579,12 @@ class ServicePPPOE(Service):
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
+                    self.log(
+                        "PPPOE - {0}: {1} resetting state".format(
+                            self.state, self.mac, self.per_state_retries
+                        ),
+                        level=Service.ERROR,
+                    )
                     continue
 
                 # send the request
@@ -570,7 +604,6 @@ class ServicePPPOE(Service):
                             options=[PPP_IPCP_Option_IPAddress(data=self.ip)],
                         )
                     )
-                    # ipcp_req.show()
                     yield pipe.async_tx_pkt(ipcp_req)
 
                 if not self.ipcp_peer_negotiated:
@@ -592,7 +625,7 @@ class ServicePPPOE(Service):
                             ipcp[PPP_IPCP].code = PPP_IPCP.code.s2i["Configure-Ack"]
                             ipcp[Ether].src = self.mac
                             ipcp[Ether].dst = self.ac_mac
-                            # ipcp.show()
+
                             self.log(
                                 "PPPOE: {0} ---> IPCP CONF ACK".format(self.mac),
                                 level=Service.INFO,
@@ -675,7 +708,9 @@ class ServicePPPOE(Service):
         def __str__(self):
             rpr = ""
             if self.client_ip:
-                rpr = "STATE: {0} session id: {1}, ip: {2}, server_ip: {3}".format(self.state, self.sid, self.client_ip, self.server_ip)
+                rpr = "STATE: {0} session id: {1}, ip: {2}, server_ip: {3}".format(
+                    self.state, self.sid, self.client_ip, self.server_ip
+                )
             else:
                 rpr = "STATE: {0} session id: {0}"
             return rpr
