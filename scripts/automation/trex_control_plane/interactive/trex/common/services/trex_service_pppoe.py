@@ -53,8 +53,6 @@ from ...common.services.trex_service import Service, ServiceFilter
 from scapy.layers.dhcp import DHCP, BOOTP
 from scapy.layers.l2 import Ether
 from scapy.layers.inet import IP, UDP
-from .trex_pppoetag import *
-from .trex_pppoetag import _PPP_lcptypes
 from scapy.layers.ppp import *
 from ipaddress import IPv4Address
 
@@ -336,7 +334,7 @@ class ServicePPPOE(Service):
                     )
                     / PPPoED_Tags()
                 )
-                service_name = PPPoETags()
+                service_name = PPPoED_Tags()
                 service_name.tag_type = 0x0101
                 service_name.tag_value = b""
                 padr.tag_list = self.tags
