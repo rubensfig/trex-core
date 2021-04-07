@@ -90,13 +90,11 @@ class ServiceFilterPPPOE(ServiceFilter):
         self.services = defaultdict(list)
 
     def add(self, service):
-        # print("here {0}".format(service.get_mac()))
         self.services[service.get_mac()].append(service)
 
     def lookup(self, pkt):
         # correct MAC is enough to verify ownership
         mac = Ether(pkt).dst
-        # print( 'Looking up for packet with dstmac: {0}'.format(mac))
         return self.services.get(mac, [])
 
     def get_bpf_filter(self):
@@ -157,7 +155,7 @@ class ServicePPPOE(Service):
         self.c_tag = c_tag
 
         # IP Address
-        self.ip = "192.151.0.1"
+        self.ip = None
 
         # Retries
         self.global_retries = 5
@@ -248,7 +246,7 @@ class ServicePPPOE(Service):
                 if self.handle_global_retries():
                     break
                 if self.handle_state_retries():
-                    print("PPPOE {0}: {1} retry {2} ---> PADI".format(self.state, self.mac, self.global_retries))
+                    self.log("PPPOE {0}: {1} retry {2} ---> PADI".format(self.state, self.mac, self.global_retries), level=Service.ERROR)
 
                 self.log("PPPOE: {0} ---> PADI".format(self.mac), level=Service.INFO)
 
@@ -288,10 +286,10 @@ class ServicePPPOE(Service):
                         offers.append(ret)
 
                 if not offers:
-                    print(
+                    self.log(
                         "PPPOE - {0}: {1} *** timeout on offers - retries left: {2}".format(
                             self.state, self.mac, self.per_state_retries
-                        )
+                        ), level=Service.ERROR
                     )
                     continue
 
@@ -316,7 +314,7 @@ class ServicePPPOE(Service):
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
+                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
                     continue
 
                 self.log("PPPOE: {0} ---> PADR".format(self.mac), level=Service.INFO)
@@ -330,7 +328,6 @@ class ServicePPPOE(Service):
                     )
                     / PPPoED_Tags(_pkt=self.tags)
                 )
-                # padr.tag_list = self.tags
 
                 # send the request
                 yield pipe.async_tx_pkt(padr)
@@ -348,10 +345,10 @@ class ServicePPPOE(Service):
                         services.append(servs)
 
                 if not services:
-                    print(
+                    self.log(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
                             self.state, self.mac, self.per_state_retries
-                        )
+                        ), level=Service.ERROR
                     )
                     continue
 
@@ -372,7 +369,7 @@ class ServicePPPOE(Service):
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
+                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
                     continue
 
                 if not self.lcp_peer_negotiated:
@@ -450,7 +447,6 @@ class ServicePPPOE(Service):
                         lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
                         lcp[Ether].src = self.mac
                         lcp[Ether].dst = self.ac_mac
-                        # lcp.show()
                         self.log(
                             "PPPOE: {0} ---> LCP CONF ACK".format(self.mac),
                             level=Service.INFO,
@@ -466,7 +462,7 @@ class ServicePPPOE(Service):
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
+                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
                     continue
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
@@ -492,10 +488,10 @@ class ServicePPPOE(Service):
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
 
-                    print(
+                    self.log(
                         "PPPOE {0}: {1} *** timeout on auth - retries left: {2}".format(
                             self.state, self.mac, self.per_state_retries
-                        )
+                        ), level=Service.ERROR
                     )
                     continue
 
@@ -552,7 +548,7 @@ class ServicePPPOE(Service):
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
+                    self.log("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries), level=Service.ERROR)
                     continue
 
                 # send the request
