@@ -312,7 +312,7 @@ class ServicePPPOE(Service):
                     level=Service.INFO,
                 )
                 self.ac_mac = offer.src
-                self.tags = offer.tag_list
+                self.tags += offer.tag_list
 
                 # HACK wait for PADO
                 pkts_arr = yield pipe.async_wait_for_pkt(0.2)
@@ -342,7 +342,7 @@ class ServicePPPOE(Service):
                     )
                     / PPPoED_Tags()
                 )
-                padr.tag_list += self.tags
+                padr.tag_list = self.tags
 
                 # send the request
                 yield pipe.async_tx_pkt(padr)
