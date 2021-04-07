@@ -272,7 +272,6 @@ class ServicePPPOE(Service):
             elif self.state == "SELECTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.reset_state_retries()
                     continue
 
                 # wait until packet arrives or timeout occurs
@@ -317,7 +316,6 @@ class ServicePPPOE(Service):
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.reset_state_retries()
                     continue
 
                 self.log("PPPOE: {0} ---> PADR".format(self.mac), level=Service.INFO)
@@ -351,7 +349,7 @@ class ServicePPPOE(Service):
                 if not services:
                     print(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
-                            self.state, self.mac, self.state_retries
+                            self.state, self.mac, self.per_state_retries
                         )
                     )
                     continue
@@ -373,7 +371,6 @@ class ServicePPPOE(Service):
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.reset_state_retries()
                     continue
 
                 if not self.lcp_peer_negotiated:
@@ -467,7 +464,6 @@ class ServicePPPOE(Service):
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.reset_state_retries()
                     continue
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
@@ -553,7 +549,6 @@ class ServicePPPOE(Service):
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
-                    self.reset_state_retries()
                     continue
 
                 # send the request
