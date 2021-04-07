@@ -51,7 +51,7 @@ from radius_eap_mschapv2.MSCHAPv2 import MSCHAPv2Crypto, MSCHAPv2Packet
 from ...common.services.trex_service import Service, ServiceFilter
 
 from scapy.layers.dhcp import DHCP, BOOTP
-from scapy.layers.l2 import Ether
+from scapy.layers.l2 import Ether, Dot1Q
 from scapy.layers.inet import IP, UDP
 from scapy.layers.ppp import *
 from ipaddress import IPv4Address
