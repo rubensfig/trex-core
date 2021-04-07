@@ -132,6 +132,10 @@ class ServicePPPOE(Service):
 
         # States for PPPoE
         self.session_id = 0
+        service_name = PPPoETag()
+        service_name.tag_type = 0x0101
+        service_name.tag_value = b""
+        self.tags = [service_name]
 
         # States for CHAP
         self.username = username.encode()
@@ -194,6 +198,10 @@ class ServicePPPOE(Service):
         if self.global_retries <= 0:
             # Reset states for PPPoE
             self.session_id = 0
+            service_name = PPPoETag()
+            service_name.tag_type = 0x0101
+            service_name.tag_value = b""
+            self.tags = [service_name]
 
             # Reset states for CHAP
             self.chap_challenge_received = False
@@ -334,10 +342,7 @@ class ServicePPPOE(Service):
                     )
                     / PPPoED_Tags()
                 )
-                service_name = PPPoETag()
-                service_name.tag_type = 0x0101
-                service_name.tag_value = b""
-                padr.tag_list = self.tags + service_name
+                padr.tag_list += self.tags
 
                 # send the request
                 yield pipe.async_tx_pkt(padr)
