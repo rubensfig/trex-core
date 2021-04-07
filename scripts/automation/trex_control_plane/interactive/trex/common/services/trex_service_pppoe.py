@@ -248,7 +248,7 @@ class ServicePPPOE(Service):
                 if self.handle_global_retries():
                     break
                 if self.handle_state_retries():
-                    print("PPPOE {0}: {1} retry {2} ---> PADI".format(self.state, self.mac, self.global_retry))
+                    print("PPPOE {0}: {1} retry {2} ---> PADI".format(self.state, self.mac, self.global_retries))
 
                 self.log("PPPOE: {0} ---> PADI".format(self.mac), level=Service.INFO)
 
