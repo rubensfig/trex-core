@@ -533,13 +533,11 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     # HACK handles getting the ipcp packet before CHAP success, we can move on
-                    if PPP_IPCP in chap_success:
+                    if PPP_IPCP in chap_success or 
+                        (PPP_CHAP in chap_success and
+                         chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]):
                         self.auth_negotiated = True
-
-                    if PPP_CHAP not in chap_success:
-                        continue
-                    if chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]:
-                        self.auth_negotiated = True
+                        break
 
                 if self.auth_negotiated == True:
                     self.reset_state_retries()
@@ -562,24 +560,6 @@ class ServicePPPOE(Service):
                 # is similar.
                 # When the IP address is received and all Nak/Ack messages are
                 # processed, the client is bound
-                if not self.ipcp_our_negotiated:
-                    self.log(
-                        "PPPOE: {0} ---> IPCP CONF REQ".format(self.mac),
-                        level=Service.INFO,
-                    )
-                    ipcp_req = (
-                        Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
-                        / Dot1Q(vlan=self.s_tag)
-                        / Dot1Q(vlan=self.c_tag)
-                        / PPPoE(sessionid=self.session_id)
-                        / PPP(proto="Internet Protocol Control Protocol")
-                        / PPP_IPCP(
-                            code="Configure-Request",
-                            options=[PPP_IPCP_Option_IPAddress(data=self.ip)],
-                        )
-                    )
-                    yield pipe.async_tx_pkt(ipcp_req)
-
                 if not self.ipcp_peer_negotiated:
                     for pkt in pkts:
                         ipcp = Ether(pkt)
@@ -606,6 +586,24 @@ class ServicePPPOE(Service):
                             )
                             yield pipe.async_tx_pkt(ipcp)
                             self.ipcp_peer_negotiated = True
+
+                if not self.ipcp_our_negotiated:
+                    self.log(
+                        "PPPOE: {0} ---> IPCP CONF REQ".format(self.mac),
+                        level=Service.INFO,
+                    )
+                    ipcp_req = (
+                        Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
+                        / Dot1Q(vlan=self.s_tag)
+                        / Dot1Q(vlan=self.c_tag)
+                        / PPPoE(sessionid=self.session_id)
+                        / PPP(proto="Internet Protocol Control Protocol")
+                        / PPP_IPCP(
+                            code="Configure-Request",
+                            options=[PPP_IPCP_Option_IPAddress(data=self.ip)],
+                        )
+                    )
+                    yield pipe.async_tx_pkt(ipcp_req)
 
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
@@ -716,3 +714,4 @@ class ServicePPPOE(Service):
             self.log( "PPPOE: {0} ---> LCP CONF ACK".format(self.mac), level=Service.INFO,)
 
             return lcp
+
