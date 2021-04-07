@@ -260,7 +260,7 @@ class ServicePPPOE(Service):
                 if self.c_tag:
                     pkt = pkt / Dot1Q(vlan=self.c_tag)
                 padi = pkt / PPPoED(
-                    version=1, type=1, code=PPPOEParser.PADI, sessionid=0, len=0
+                    version=1, type=1, code=self.PADI, sessionid=0, len=0
                 )
 
                 # send a discover message
@@ -285,7 +285,7 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     ret = Ether(pkt)
 
-                    if ret.code == PPPOEParser.PADO:
+                    if ret.code == self.PADO:
                         offers.append(ret)
 
                 if not offers:
@@ -333,7 +333,7 @@ class ServicePPPOE(Service):
                     / Dot1Q(vlan=self.s_tag)
                     / Dot1Q(vlan=self.c_tag)
                     / PPPoED(
-                        version=1, type=1, code=PPPOEParser.PADR, sessionid=0, len=45
+                        version=1, type=1, code=self.PADR, sessionid=0, len=45
                     )
                     / PPPoED_Tags(_pkt=self.tags)
                 )
@@ -350,7 +350,7 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     servs = Ether(pkt)
 
-                    if servs.code == PPPOEParser.PADS:
+                    if servs.code == self.PADS:
                         services.append(servs)
 
                 if not services:
@@ -640,7 +640,7 @@ class ServicePPPOE(Service):
         if self.c_tag:
             pkt = pkt / Dot1Q(vlan=self.c_tag)
         padt = pkt / PPPoED(
-            version=1, type=1, code=PPPOEParser.PADT, sessionid=self.session_id, len=0
+            version=1, type=1, code=self.PADT, sessionid=self.session_id, len=0
         )
 
         yield pipe.async_tx_pkt(padt)
