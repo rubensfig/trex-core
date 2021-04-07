@@ -135,6 +135,8 @@ class ServicePPPOE(Service):
         self.session_id = 0
 
         # States for CHAP
+        self.username = username
+        self.password = password
         self.chap_got_challenge_id = False
         self.chap_challenge = False
         self.chap_challenge_id = 0
