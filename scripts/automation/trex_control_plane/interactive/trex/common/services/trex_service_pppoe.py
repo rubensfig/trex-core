@@ -113,7 +113,7 @@ class ServicePPPOE(Service):
         verbose_level=Service.ERROR,
         s_tag=None,
         c_tag=None,
-        username = b"testing",
+        username = "testing",
         password = "password",
     ):
 
