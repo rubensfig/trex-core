@@ -301,11 +301,11 @@ class ServicePPPOE(Service):
 
                 self.log(
                     "PPPOE: {0} <--- PADO from '{1}'".format(
-                        self.mac, bytes2mac(offer.srcmac)
+                        self.mac, bytes2mac(offer.src)
                     ),
                     level=Service.INFO,
                 )
-                self.ac_mac = bytes2mac(offer.srcmac)
+                self.ac_mac = bytes2mac(offer.src)
                 self.tags = offer.tag_list
 
                 # HACK wait for PADO
