@@ -334,7 +334,7 @@ class ServicePPPOE(Service):
                     )
                     / PPPoED_Tags()
                 )
-                service_name = PPPoED_Tags()
+                service_name = PPPoETag()
                 service_name.tag_type = 0x0101
                 service_name.tag_value = b""
                 padr.tag_list = self.tags + service_name
