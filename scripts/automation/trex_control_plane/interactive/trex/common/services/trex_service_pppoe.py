@@ -401,7 +401,11 @@ class ServicePPPOE(Service):
                 if not self.lcp_peer_negotiated:
                     for pkt in pkts:
                         lcp = Ether(pkt)
-                        self.lcp_process_peer_negotiate(lcp, pipe)
+
+                        lcp_ret = self.lcp_process_peer_negotiate(lcp):
+                        if lcp_ret:
+                            yield pipe.async_tx_pkt(lcp)
+                            self.lcp_peer_negotiated = True
 
                 if not self.lcp_our_negotiated:
                     self.log(
@@ -439,7 +443,10 @@ class ServicePPPOE(Service):
                             level=Service.INFO,
                         )
                         self.lcp_our_negotiated = True
-                    self.lcp_process_peer_negotiate(lcp, pipe)
+                    lcp_ret = self.lcp_process_peer_negotiate(lcp):
+                    if lcp_ret:
+                        yield pipe.async_tx_pkt(lcp)
+                        self.lcp_peer_negotiated = True
 
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
@@ -692,9 +699,9 @@ class ServicePPPOE(Service):
 
     def lcp_process_peer_negotiate(self, conf_req, pipe):
         if PPP_LCP_Configure not in conf_req:
-            return False
+            return
 
-        if ( conf_req[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Request"]):
+        if conf_req[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Request"]:
             self.log( "PPPOE: {0} <--- LCP CONF REQ".format(self.mac), level=Service.INFO,)
 
             conf_req[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
@@ -702,5 +709,4 @@ class ServicePPPOE(Service):
             conf_req[Ether].dst = self.ac_mac
             self.log( "PPPOE: {0} ---> LCP CONF ACK".format(self.mac), level=Service.INFO,)
 
-            yield pipe.async_tx_pkt(lcp)
-            self.lcp_peer_negotiated = True
+            return lcp
