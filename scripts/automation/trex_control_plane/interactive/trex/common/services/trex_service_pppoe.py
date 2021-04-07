@@ -115,8 +115,8 @@ class ServicePPPOE(Service):
         verbose_level=Service.ERROR,
         s_tag=None,
         c_tag=None,
-        username="testing",
-        password="password",
+        username = b"testing",
+        password = "password",
     ):
 
         # init the base object
@@ -500,13 +500,13 @@ class ServicePPPOE(Service):
                     continue
 
                 crypto = MSCHAPv2Crypto(
-                    self.challenge_id, self.value, self.value, b"testing", "password"
+                    self.chap_challenge_id, self.chap_value, self.chap_value, self.username, self.testing
                 )  # USER DEFAULTS = testing/ password
                 mschap_pkt = MSCHAPv2Packet(2)
                 mschap_pkt.ms_chap_id = self.chap_challenge_id
                 mschap_pkt.challenge = self.chap_value
                 mschap_pkt.response = crypto.challenge_response()
-                mschap_pkt.name = b"testing"
+                mschap_pkt.name = self.username
 
                 # send the response
                 self.log(
