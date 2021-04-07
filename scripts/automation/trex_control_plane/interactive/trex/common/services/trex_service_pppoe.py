@@ -139,8 +139,8 @@ class ServicePPPOE(Service):
         # States for CHAP
         self.chap_got_challenge_id = False
         self.chap_challenge = False
-        self.challenge_id = 0
-        self.value = 0
+        self.chap_challenge_id = 0
+        self.chap_value = 0
 
         # States for LCP
         self.lcp_our_sent = False
@@ -201,8 +201,8 @@ class ServicePPPOE(Service):
             # Reset states for CHAP
             self.chap_got_challenge_id = False
             self.chap_challenge = False
-            self.challenge_id = 0
-            self.value = 0
+            self.chap_challenge_id = 0
+            self.chap_value = 0
 
             # Reset states for LCP
             self.lcp_our_sent = False
@@ -316,6 +316,7 @@ class ServicePPPOE(Service):
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
                     continue
 
                 self.log("PPPOE: {0} ---> PADR".format(self.mac), level=Service.INFO)
@@ -371,6 +372,7 @@ class ServicePPPOE(Service):
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
                     continue
 
                 if not self.lcp_peer_negotiated:
@@ -464,6 +466,7 @@ class ServicePPPOE(Service):
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
                     continue
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
@@ -478,8 +481,8 @@ class ServicePPPOE(Service):
                             chap[PPP_CHAP_ChallengeResponse].code
                             == PPP_CHAP.code.s2i["Challenge"]
                         ):
-                            self.challenge_id = chap[PPP_CHAP_ChallengeResponse].id
-                            self.value = chap[PPP_CHAP_ChallengeResponse].value
+                            self.chap_challenge_id = chap[PPP_CHAP_ChallengeResponse].id
+                            self.chap_value = chap[PPP_CHAP_ChallengeResponse].value
 
                             self.chap_challenge = True
                             break
@@ -500,8 +503,8 @@ class ServicePPPOE(Service):
                     self.challenge_id, self.value, self.value, b"testing", "password"
                 )  # USER DEFAULTS = testing/ password
                 mschap_pkt = MSCHAPv2Packet(2)
-                mschap_pkt.ms_chap_id = self.challenge_id
-                mschap_pkt.challenge = self.value
+                mschap_pkt.ms_chap_id = self.chap_challenge_id
+                mschap_pkt.challenge = self.chap_value
                 mschap_pkt.response = crypto.challenge_response()
                 mschap_pkt.name = b"testing"
 
@@ -549,6 +552,7 @@ class ServicePPPOE(Service):
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    print("PPPOE - {0}: {1} resetting state".format(self.state, self.mac, self.per_state_retries))
                     continue
 
                 # send the request
