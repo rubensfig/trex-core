@@ -402,7 +402,7 @@ class ServicePPPOE(Service):
                     for pkt in pkts:
                         lcp = Ether(pkt)
 
-                        lcp_ret = self.lcp_process_peer_negotiate(lcp):
+                        lcp_ret = self.lcp_process_peer_negotiate(lcp)
                         if lcp_ret:
                             yield pipe.async_tx_pkt(lcp)
                             self.lcp_peer_negotiated = True
@@ -443,7 +443,7 @@ class ServicePPPOE(Service):
                             level=Service.INFO,
                         )
                         self.lcp_our_negotiated = True
-                    lcp_ret = self.lcp_process_peer_negotiate(lcp):
+                    lcp_ret = self.lcp_process_peer_negotiate(lcp)
                     if lcp_ret:
                         yield pipe.async_tx_pkt(lcp)
                         self.lcp_peer_negotiated = True
