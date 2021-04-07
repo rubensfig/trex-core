@@ -703,6 +703,7 @@ class ServicePPPOE(Service):
             return True
 
     def lcp_process_peer_negotiate(self, conf_req):
+        lcp = conf_req
         if PPP_LCP_Configure not in conf_req:
             return
 
