@@ -301,11 +301,11 @@ class ServicePPPOE(Service):
 
                 self.log(
                     "PPPOE: {0} <--- PADO from '{1}'".format(
-                        self.mac, bytes2mac(offer.src)
+                        self.mac, offer.src
                     ),
                     level=Service.INFO,
                 )
-                self.ac_mac = bytes2mac(offer.src)
+                self.ac_mac = offer.src
                 self.tags = offer.tag_list
 
                 # HACK wait for PADO
@@ -327,16 +327,19 @@ class ServicePPPOE(Service):
                     continue
 
                 self.log("PPPOE: {0} ---> PADR".format(self.mac), level=Service.INFO)
-
                 padr = (
                     Ether(src=self.get_mac(), dst=self.ac_mac)
                     / Dot1Q(vlan=self.s_tag)
                     / Dot1Q(vlan=self.c_tag)
                     / PPPoED(
-                        version=1, type=1, code=self.PADR, sessionid=0, len=45
+                        version=1, type=1, code=self.PADR, sessionid=0
                     )
-                    / PPPoED_Tags(_pkt=self.tags)
+                    / PPPoED_Tags()
                 )
+                service_name = PPPoETags()
+                service_name.tag_type = 0x0101
+                service_name.tag_value = b""
+                padr.tag_list = self.tags
 
                 # send the request
                 yield pipe.async_tx_pkt(padr)
