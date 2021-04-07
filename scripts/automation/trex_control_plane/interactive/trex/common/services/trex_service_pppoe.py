@@ -2,13 +2,49 @@
 PPPoE service implementation
 
 Description:
-    <FILL ME HERE>
+    This script implements the PPPoE State Machine. This state machineis meant to be run
+    with the TRex traffic generator. 
+
+    The script is currently implementing:
+        - PPPoE PADX packet exchanges
+        - LCP negotiation
+        - CHAP authentication
+        - IPCP negotiation
+        - Session termination
+
+    The script currently is run with the intent of setting up PPPoE sessions to provide a 
+    TRex app to test a dataplane with a certain number of clients. Each instance of this
+    state machine only setups one one client, so having many clients must be handled from
+    outside the script. 
+
+    A hard limitation is the number of packets per second that can be queued for TX from 
+    multiple clients. Currently there is a limit of 100 pps that can be queued. This has
+    effects on the delays of sent packets, which will break can break provisioning, if the
+    accel-ppp server has timeouts on the various states of client setup.
+
+    After the client is bound and test is run, calling the run script again will
+    free the client from the session by sending the PADT.
 
 How to use:
-    <FILL ME HERE>
+    ServicePPPOE(
+        mac=XX:XX:XX:XX:XX:XX,
+        verbose_level=ServicePPPOE.ERROR,
+        s_tag=100,
+        c_tag=10,
+        username='testing'
+        password='password',
+    )
+
+    Create an instance of this Service Implementation by calling the above class creation, and run
+
+    self.ctx = self.c.create_service_ctx(port=self.port)
+    ...
+
+    self.ctx.run(clients)
+
     
-Author:
-  Stanislav Zaikin
+Authors:
+  Adapted from Stanislav Zaikin, Rubens Figueiredo
 
 """
 from radius_eap_mschapv2.MSCHAPv2 import MSCHAPv2Crypto, MSCHAPv2Packet
@@ -23,7 +59,6 @@ from .trex_pppoetag import *
 from .trex_pppoetag import _PPP_lcptypes
 from scapy.layers.ppp import *
 from ipaddress import IPv4Address
-import threading
 
 from collections import defaultdict
 import random
@@ -192,7 +227,7 @@ class ServicePPPOE(Service):
             # while running under 'INIT' - perform acquire
             if self.state == "INIT":
                 return self._acquire(pipe)
-            elif self.state == "BOUND":
+            else:
                 return self._release(pipe)
         except ValueError:
             pass
@@ -212,7 +247,8 @@ class ServicePPPOE(Service):
             if self.state == "INIT":
                 if self.handle_global_retries():
                     break
-                self.handle_state_retries()
+                if self.handle_state_retries():
+                    print("PPPOE {0}: {1} retry {2} ---> PADI".format(self.state, self.mac, self.global_retry))
 
                 self.log("PPPOE: {0} ---> PADI".format(self.mac), level=Service.INFO)
 
@@ -236,6 +272,7 @@ class ServicePPPOE(Service):
             elif self.state == "SELECTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    self.reset_state_retries()
                     continue
 
                 # wait until packet arrives or timeout occurs
@@ -254,7 +291,7 @@ class ServicePPPOE(Service):
                 if not offers:
                     print(
                         "PPPOE - {0}: {1} *** timeout on offers - retries left: {2}".format(
-                            self.state, self.mac, self.global_retries
+                            self.state, self.mac, self.state_retries
                         )
                     )
                     continue
@@ -280,6 +317,7 @@ class ServicePPPOE(Service):
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    self.reset_state_retries()
                     continue
 
                 self.log("PPPOE: {0} ---> PADR".format(self.mac), level=Service.INFO)
@@ -313,7 +351,7 @@ class ServicePPPOE(Service):
                 if not services:
                     print(
                         "PPPOE {0}: {1} *** timeout on ack - retries left: {2}".format(
-                            self.state, self.mac, self.global_retries
+                            self.state, self.mac, self.state_retries
                         )
                     )
                     continue
@@ -335,6 +373,7 @@ class ServicePPPOE(Service):
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    self.reset_state_retries()
                     continue
 
                 if not self.lcp_peer_negotiated:
@@ -428,6 +467,7 @@ class ServicePPPOE(Service):
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    self.reset_state_retries()
                     continue
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
@@ -455,7 +495,7 @@ class ServicePPPOE(Service):
 
                     print(
                         "PPPOE {0}: {1} *** timeout on auth - retries left: {2}".format(
-                            self.state, self.mac, self.global_retries
+                            self.state, self.mac, self.state_retries
                         )
                     )
                     continue
@@ -513,6 +553,7 @@ class ServicePPPOE(Service):
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
+                    self.reset_state_retries()
                     continue
 
                 # send the request
@@ -602,7 +643,7 @@ class ServicePPPOE(Service):
         Release the PPPOE lease
         """
         self.log("PPPOE: {0} ---> RELEASING".format(self.mac))
-        pkt = Ether(src=self.get_mac_bytes(), dst= self.mac2bytes(self.ac_mac))
+        pkt = Ether(src=self.get_mac_bytes(), dst=self.mac2bytes(self.ac_mac))
         if self.s_tag:
             pkt = pkt / Dot1Q(vlan=self.s_tag)
         if self.c_tag:
@@ -632,6 +673,12 @@ class ServicePPPOE(Service):
             self.sid = parent.session_id
             self.s_tag = parent.s_tag
             self.c_tag = parent.c_tag
+            self.state = parent.state
 
         def __str__(self):
-            return "ip: {0}, server_ip: {1}".format(self.client_ip, self.server_ip)
+            rpr = ""
+            if self.client_ip:
+                rpr = "STATE: {0} session id: {1}, ip: {2}, server_ip: {3}".format(self.state, self.sid, self.client_ip, self.server_ip)
+            else:
+                rpr = "STATE: {0} session id: {0}"
+            return rpr
