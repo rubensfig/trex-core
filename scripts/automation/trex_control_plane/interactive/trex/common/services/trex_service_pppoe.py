@@ -49,8 +49,6 @@ Authors:
 """
 from radius_eap_mschapv2.MSCHAPv2 import MSCHAPv2Crypto, MSCHAPv2Packet
 from ...common.services.trex_service import Service, ServiceFilter
-from .trex_pppoe_parser import PPPOEParser
-from .trex_service_fast_parser import FastParser
 
 from scapy.layers.dhcp import DHCP, BOOTP
 from scapy.layers.l2 import Ether
@@ -104,6 +102,12 @@ class ServiceFilterPPPOE(ServiceFilter):
 ################### internal ###################
 class ServicePPPOE(Service):
 
+    # PPPOE message types message types
+    PADI = 0x9
+    PADO = 0x7
+    PADR = 0x19
+    PADS = 0x65
+    PADT = 0xA7
     # PPPOE states
     INIT, SELECTING, REQUESTING, LCP, AUTH, IPCP, BOUND = range(7)
 
@@ -134,8 +138,7 @@ class ServicePPPOE(Service):
         # States for CHAP
         self.username = username.encode()
         self.password = password
-        self.chap_got_challenge_id = False
-        self.chap_challenge = False
+        self.chap_challenge_received = False
         self.chap_challenge_id = 0
         self.chap_value = 0
 
@@ -195,8 +198,7 @@ class ServicePPPOE(Service):
             self.session_id = 0
 
             # Reset states for CHAP
-            self.chap_got_challenge_id = False
-            self.chap_challenge = False
+            self.chap_challenge_received = False
             self.chap_challenge_id = 0
             self.chap_value = 0
 
@@ -281,8 +283,7 @@ class ServicePPPOE(Service):
                 # filter out the offer responses
                 offers = []
                 for pkt in pkts:
-                    pars = PPPOEParser()
-                    ret = pars.parse(pkt)
+                    ret = Ether(pkt)
 
                     if ret.code == PPPOEParser.PADO:
                         offers.append(ret)
@@ -387,40 +388,19 @@ class ServicePPPOE(Service):
                     continue
 
                 # When handling LCP, the client expects a LCP Configuration
-                # Request from the remote server, and the client must send 
+                # Request from the remote server, and the client must send
                 # the same message as well, although the fields differ
-                # Since the incoming config request comes shortly after 
-                # the PADS, we process any possible messages before 
+                # Since the incoming config request comes shortly after
+                # the PADS, we process any possible messages before
                 # blocking the thread, to ensure we respond to the first LCP
-                # In the script, the variable lcp_peer_negotiated handles 
+                # In the script, the variable lcp_peer_negotiated handles
                 # the config request from the server, and subsequent ACK
                 # from the client; while lcp_our_negotiated handles the
                 # config request from the client, and subsequent ack from the server
                 if not self.lcp_peer_negotiated:
                     for pkt in pkts:
                         lcp = Ether(pkt)
-
-                        if PPP_LCP_Configure not in lcp:
-                            continue
-                        if (
-                            lcp[PPP_LCP_Configure].code
-                            == PPP_LCP.code.s2i["Configure-Request"]
-                        ):
-                            self.log(
-                                "PPPOE: {0} <--- LCP CONF REQ".format(self.mac),
-                                level=Service.INFO,
-                            )
-                            lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i[
-                                "Configure-Ack"
-                            ]
-                            lcp[Ether].src = self.mac
-                            lcp[Ether].dst = self.ac_mac
-                            self.log(
-                                "PPPOE: {0} ---> LCP CONF ACK".format(self.mac),
-                                level=Service.INFO,
-                            )
-                            yield pipe.async_tx_pkt(lcp)
-                            self.lcp_peer_negotiated = True
+                        self.lcp_process_peer_negotiate(lcp, pipe)
 
                 if not self.lcp_our_negotiated:
                     self.log(
@@ -458,23 +438,7 @@ class ServicePPPOE(Service):
                             level=Service.INFO,
                         )
                         self.lcp_our_negotiated = True
-                    elif (
-                        lcp[PPP_LCP_Configure].code
-                        == PPP_LCP.code.s2i["Configure-Request"]
-                    ):
-                        self.log(
-                            "PPPOE: {0} <--- LCP CONF REQ".format(self.mac),
-                            level=Service.INFO,
-                        )
-                        lcp[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
-                        lcp[Ether].src = self.mac
-                        lcp[Ether].dst = self.ac_mac
-                        self.log(
-                            "PPPOE: {0} ---> LCP CONF ACK".format(self.mac),
-                            level=Service.INFO,
-                        )
-                        yield pipe.async_tx_pkt(lcp)
-                        self.lcp_peer_negotiated = True
+                    self.lcp_process_peer_negotiate(lcp, pipe)
 
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
@@ -492,36 +456,29 @@ class ServicePPPOE(Service):
                     )
                     continue
 
+                # In this code block, the CHAP authentication is handled. We expect
+                # one CHALLENGE packet, that comes from the server. When the Challenge
+                # packets is received, we processs it with the chap_challenge variable.
+                # That is, when the correct CHAP Challenge packet is present, we can
+                # move on and continue the state machine. In this case, we block the
+                # thread waiting for packets, and trigger a retry, that then processes
+                # the correct packets (or not, which blacks and then retries again).
+                # The script then forms the response with the received challenge,
+                # username, password, encrypts these values and sends it. Receiving the
+                # response advances the state machine
+
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
 
-                if not self.chap_challenge:
+                while not self.chap_challenge_received:
+                    ret = False 
+
                     for pkt in pkts:
                         chap = Ether(pkt)
-
-                        if (PPP_CHAP_ChallengeResponse) not in chap:
-                            continue
-                        if (
-                            chap[PPP_CHAP_ChallengeResponse].code
-                            == PPP_CHAP.code.s2i["Challenge"]
-                        ):
-                            self.chap_challenge_id = chap[PPP_CHAP_ChallengeResponse].id
-                            self.chap_value = chap[PPP_CHAP_ChallengeResponse].value
-
-                            self.chap_challenge = True
+                        if self.chap_process_challenge_packet(chap):
                             break
 
-                if not self.chap_challenge:
-                    # wait for response
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
-
-                    self.log(
-                        "PPPOE {0}: {1} *** timeout on auth - retries left: {2}".format(
-                            self.state, self.mac, self.per_state_retries
-                        ),
-                        level=Service.ERROR,
-                    )
-                    continue
 
                 crypto = MSCHAPv2Crypto(
                     self.chap_challenge_id,
@@ -562,7 +519,7 @@ class ServicePPPOE(Service):
                 )
                 for pkt in pkts:
                     chap_success = Ether(pkt)
-                    # handles getting the ipcp packet before CHAP success, we can move on
+                    # HACK handles getting the ipcp packet before CHAP success, we can move on
                     if PPP_IPCP in chap_success:
                         self.auth_negotiated = True
 
@@ -587,7 +544,11 @@ class ServicePPPOE(Service):
                     )
                     continue
 
-                # send the request
+                # Handling IPCP is done in a similar way to LCP, and the usage
+                # of the variables, ipcp_peer_negotiated and ipcp_our_negotiated
+                # is similar.
+                # When the IP address is received and all Nak/Ack messages are
+                # processed, the client is bound
                 if not self.ipcp_our_negotiated:
                     self.log(
                         "PPPOE: {0} ---> IPCP CONF REQ".format(self.mac),
@@ -714,3 +675,31 @@ class ServicePPPOE(Service):
             else:
                 rpr = "STATE: {0} session id: {0}"
             return rpr
+
+    #########################  helper functions  #########################
+
+    def chap_process_challenge_packet(self, chap):
+        if (PPP_CHAP_ChallengeResponse) not in chap:
+            return False
+
+        if (chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i["Challenge"]):
+            self.chap_challenge_id = chap[PPP_CHAP_ChallengeResponse].id
+            self.chap_value = chap[PPP_CHAP_ChallengeResponse].value
+
+            self.chap_challenge_received = True
+            return True
+
+    def lcp_process_peer_negotiate(self, conf_req, pipe):
+        if PPP_LCP_Configure not in conf_req:
+            return False
+
+        if ( conf_req[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Request"]):
+            self.log( "PPPOE: {0} <--- LCP CONF REQ".format(self.mac), level=Service.INFO,)
+
+            conf_req[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
+            conf_req[Ether].src = self.mac
+            conf_req[Ether].dst = self.ac_mac
+            self.log( "PPPOE: {0} ---> LCP CONF ACK".format(self.mac), level=Service.INFO,)
+
+            yield pipe.async_tx_pkt(lcp)
+            self.lcp_peer_negotiated = True
