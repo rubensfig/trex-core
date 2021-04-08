@@ -691,7 +691,7 @@ class ServicePPPOE(Service):
 
         return ipcp_pkts
 
-    def ipcp_handle_config_ack(self, lcp):
+    def ipcp_handle_config_ack(self, ipcp):
         if PPP_IPCP not in ipcp:
             return None
 
