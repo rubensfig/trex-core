@@ -50,11 +50,9 @@ Authors:
 from radius_eap_mschapv2.MSCHAPv2 import MSCHAPv2Crypto, MSCHAPv2Packet
 from ...common.services.trex_service import Service, ServiceFilter
 
-from scapy.layers.dhcp import DHCP, BOOTP
 from scapy.layers.l2 import Ether, Dot1Q
 from scapy.layers.inet import IP, UDP
 from scapy.layers.ppp import *
-from ipaddress import IPv4Address
 
 from collections import defaultdict
 import random
@@ -272,8 +270,6 @@ class ServicePPPOE(Service):
 
                 self.state = "SELECTING"
                 self.reset_state_retries()
-                continue
-
             # SELECTING state
             elif self.state == "SELECTING":
                 if self.handle_state_retries():
@@ -304,9 +300,7 @@ class ServicePPPOE(Service):
                 offer = offers[0]
 
                 self.log(
-                    "PPPOE: {0} <--- PADO from '{1}'".format(
-                        self.mac, offer.src
-                    ),
+                    "PPPOE: {0} <--- PADO from '{1}'".format(self.mac, offer.src),
                     level=Service.INFO,
                 )
                 self.ac_mac = offer.src
@@ -316,13 +310,12 @@ class ServicePPPOE(Service):
                 # BISDN Linux switches duplicate packets
                 # The first PADI sent is duplicated because of this,
                 # and the ppp server responds with duplicated PADOs
-                # blocking the thread here for a packets ensures that 
+                # blocking the thread here for a packets ensures that
                 # the second PADO is not processed
                 pkts_arr = yield pipe.async_wait_for_pkt(0.2)
 
                 self.state = "REQUESTING"
                 self.reset_state_retries()
-                continue
             # REQUEST state
             elif self.state == "REQUESTING":
                 if self.handle_state_retries():
@@ -340,9 +333,7 @@ class ServicePPPOE(Service):
                     Ether(src=self.get_mac(), dst=self.ac_mac)
                     / Dot1Q(vlan=self.s_tag)
                     / Dot1Q(vlan=self.c_tag)
-                    / PPPoED(
-                        version=1, type=1, code=self.PADR, sessionid=0
-                    )
+                    / PPPoED(version=1, type=1, code=self.PADR, sessionid=0)
                     / PPPoED_Tags()
                 )
                 padr.tag_list = self.tags
@@ -383,8 +374,6 @@ class ServicePPPOE(Service):
                 )
                 self.state = "LCP"
                 self.reset_state_retries()
-
-                continue
             elif self.state == "LCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
@@ -421,8 +410,6 @@ class ServicePPPOE(Service):
                 # wait for response
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
-
-                continue
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
@@ -455,7 +442,6 @@ class ServicePPPOE(Service):
                 if not self.chap_challenge_received:
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
                     pkts = [pkt["pkt"] for pkt in pkts]
-
                     continue
 
                 chap_resp = self.chap_response()
@@ -465,23 +451,23 @@ class ServicePPPOE(Service):
                 pkts = yield pipe.async_wait_for_pkt(self.timeout)
                 pkts = [pkt["pkt"] for pkt in pkts]
 
-                self.auth_negotiated = False
+                auth_negotiated = False
                 self.log(
                     "PPPOE: {0} <--- CHAP SUCCESS ".format(self.mac), level=Service.INFO
                 )
                 for pkt in pkts:
                     chap_success = Ether(pkt)
 
-                    if (PPP_CHAP in chap_success and
-                         chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]):
-                        self.auth_negotiated = True
+                    if (
+                        PPP_CHAP in chap_success
+                        and chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]
+                    ):
+                        auth_negotiated = True
                         break
 
-                if self.auth_negotiated == True:
+                if auth_negotiated == True:
                     self.reset_state_retries()
                     self.state = "IPCP"
-
-                continue
             elif self.state == "IPCP":
                 if self.handle_state_retries():
                     self.state = "INIT"
@@ -573,9 +559,9 @@ class ServicePPPOE(Service):
 
     def chap_process_challenge_packet(self, chap):
         if (PPP_CHAP_ChallengeResponse) not in chap:
-            return None
+            return False
 
-        if (chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i["Challenge"]):
+        if chap[PPP_CHAP_ChallengeResponse].code == PPP_CHAP.code.s2i["Challenge"]:
             self.chap_challenge_id = chap[PPP_CHAP_ChallengeResponse].id
             self.chap_value = chap[PPP_CHAP_ChallengeResponse].value
 
@@ -616,14 +602,14 @@ class ServicePPPOE(Service):
         lcp_pkts = []
 
         self.lcp_handle_config_ack(lcp_packet)
-        
+
         if not self.lcp_our_negotiated:
-            rt = self.lcp_process_remote_negotiate()
+            rt = self.lcp_generate_config_request()
             if rt:
                 lcp_pkts += rt
-        
+
         if not self.lcp_peer_negotiated:
-            rt = self.lcp_process_peer_negotiate(lcp_packet)
+            rt = self.lcp_process_config_request(lcp_packet)
             if rt:
                 lcp_pkts += rt
 
@@ -634,55 +620,67 @@ class ServicePPPOE(Service):
             return None
 
         if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
-            self.log( "PPPOE: {0} <--- LCP CONF ACK".format(self.mac), level=Service.INFO,)
+            self.log(
+                "PPPOE: {0} <--- LCP CONF ACK".format(self.mac),
+                level=Service.INFO,
+            )
             self.lcp_our_negotiated = True
 
-    def lcp_process_remote_negotiate(self):
-            self.log( "PPPOE: {0} ---> LCP CONF REQ".format(self.mac), level=Service.INFO,)
-            lcp_req = (
-                Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
-                / Dot1Q(vlan=self.s_tag)
-                / Dot1Q(vlan=self.c_tag)
-                / PPPoE(sessionid=self.session_id)
-                / PPP(proto="Link Control Protocol")
-                / PPP_LCP_Configure(
-                    code="Configure-Request",
-                    options=[
-                        PPP_LCP_MRU_Option(max_recv_unit=1492)
-                        / PPP_LCP_Magic_Number_Option(magic_number=0x13371337)
-                    ],
-                )
+    def lcp_generate_config_request(self):
+        self.log(
+            "PPPOE: {0} ---> LCP CONF REQ".format(self.mac),
+            level=Service.INFO,
+        )
+        lcp_req = (
+            Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
+            / Dot1Q(vlan=self.s_tag)
+            / Dot1Q(vlan=self.c_tag)
+            / PPPoE(sessionid=self.session_id)
+            / PPP(proto="Link Control Protocol")
+            / PPP_LCP_Configure(
+                code="Configure-Request",
+                options=[
+                    PPP_LCP_MRU_Option(max_recv_unit=1492)
+                    / PPP_LCP_Magic_Number_Option(magic_number=0x13371337)
+                ],
             )
-            return lcp_req
+        )
+        return lcp_req
 
-    def lcp_process_peer_negotiate(self, conf_req):
+    def lcp_process_config_request(self, conf_req):
         lcp = conf_req
         if PPP_LCP_Configure not in conf_req:
             return None
 
         if conf_req[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Request"]:
-            self.log( "PPPOE: {0} <--- LCP CONF REQ".format(self.mac), level=Service.INFO,)
+            self.log(
+                "PPPOE: {0} <--- LCP CONF REQ".format(self.mac),
+                level=Service.INFO,
+            )
 
             conf_req[PPP_LCP_Configure].code = PPP_LCP.code.s2i["Configure-Ack"]
             conf_req[Ether].src = self.mac
             conf_req[Ether].dst = self.ac_mac
-            self.log( "PPPOE: {0} ---> LCP CONF ACK".format(self.mac), level=Service.INFO,)
+            self.log(
+                "PPPOE: {0} ---> LCP CONF ACK".format(self.mac),
+                level=Service.INFO,
+            )
 
             self.lcp_peer_negotiated = True
             return lcp
-    
+
     def ipcp_handle_packet(self, ipcp_packet):
         ipcp_pkts = []
 
         self.ipcp_handle_config_ack(ipcp_packet)
-        
+
         if not self.ipcp_our_negotiated:
-            rt = self.ipcp_process_remote_negotiate()
+            rt = self.ipcp_generate_config_request()
             if rt:
                 ipcp_pkts += rt
-        
+
         if not self.ipcp_peer_negotiated:
-            rt = self.ipcp_process_peer_negotiate(ipcp_packet)
+            rt = self.ipcp_process_config_request(ipcp_packet)
             if rt:
                 ipcp_pkts += rt
 
@@ -693,36 +691,51 @@ class ServicePPPOE(Service):
             return None
 
         if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Ack"]:
-            self.log( "PPPOE: {0} <--- IPCP CONF ACK".format(self.mac), level=Service.INFO,)
+            self.log(
+                "PPPOE: {0} <--- IPCP CONF ACK".format(self.mac),
+                level=Service.INFO,
+            )
             self.ipcp_our_negotiated = True
         elif ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Nak"]:
             for opt in ipcp[PPP_IPCP].options:
                 if isinstance(opt, PPP_IPCP_Option_IPAddress):
                     self.ip = opt.data
-                self.log( "PPPOE: {0} <--- IPCP CONF NAK, new IP: {1}".format( self.mac, self.ip), level=Service.INFO,)
-
-    def ipcp_process_remote_negotiate(self):
-        self.log( "PPPOE: {0} ---> IPCP CONF REQ".format(self.mac), level=Service.INFO,)
-        ipcp_req = ( Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
-                     / Dot1Q(vlan=self.s_tag)
-                     / Dot1Q(vlan=self.c_tag)
-                     / PPPoE(sessionid=self.session_id)
-                     / PPP(proto="Internet Protocol Control Protocol")
-                     / PPP_IPCP(
-                         code="Configure-Request",
-                         options=[PPP_IPCP_Option_IPAddress(data=self.ip)],
-                     )
+                self.log(
+                    "PPPOE: {0} <--- IPCP CONF NAK, new IP: {1}".format(
+                        self.mac, self.ip
+                    ),
+                    level=Service.INFO,
                 )
+
+    def ipcp_generate_config_request(self):
+        self.log(
+            "PPPOE: {0} ---> IPCP CONF REQ".format(self.mac),
+            level=Service.INFO,
+        )
+        ipcp_req = (
+            Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
+            / Dot1Q(vlan=self.s_tag)
+            / Dot1Q(vlan=self.c_tag)
+            / PPPoE(sessionid=self.session_id)
+            / PPP(proto="Internet Protocol Control Protocol")
+            / PPP_IPCP(
+                code="Configure-Request",
+                options=[PPP_IPCP_Option_IPAddress(data=self.ip)],
+            )
+        )
         return ipcp_req
 
-    def ipcp_process_peer_negotiate(self, conf_req):
+    def ipcp_process_config_request(self, conf_req):
         ipcp = conf_req
 
         if PPP_IPCP not in ipcp:
             return None
 
-        if ( ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Request"]):
-            self.log( "PPPOE: {0} <--- IPCP CONF REQ".format(self.mac), level=Service.INFO,)
+        if ipcp[PPP_IPCP].code == PPP_IPCP.code.s2i["Configure-Request"]:
+            self.log(
+                "PPPOE: {0} <--- IPCP CONF REQ".format(self.mac),
+                level=Service.INFO,
+            )
             for opt in ipcp[PPP_IPCP].options:
                 if isinstance(opt, PPP_IPCP_Option_IPAddress):
                     self.ac_ip = opt.data
@@ -731,8 +744,10 @@ class ServicePPPOE(Service):
                 ipcp[Ether].src = self.mac
                 ipcp[Ether].dst = self.ac_mac
 
-                self.log( "PPPOE: {0} ---> IPCP CONF ACK".format(self.mac), level=Service.INFO,)
+                self.log(
+                    "PPPOE: {0} ---> IPCP CONF ACK".format(self.mac),
+                    level=Service.INFO,
+                )
                 self.ipcp_peer_negotiated = True
 
             return ipcp
-
