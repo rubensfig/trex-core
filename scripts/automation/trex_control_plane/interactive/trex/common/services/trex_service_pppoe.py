@@ -678,7 +678,7 @@ class ServicePPPOE(Service):
                 lcp_pkts += rt
         
         if not self.lcp_peer_negotiated:
-            rt += self.lcp_process_peer_negotiate(lcp_packet)
+            rt = self.lcp_process_peer_negotiate(lcp_packet)
             if rt:
                 lcp_pkts += rt
 
