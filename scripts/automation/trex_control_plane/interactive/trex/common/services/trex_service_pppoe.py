@@ -452,10 +452,10 @@ class ServicePPPOE(Service):
                     if self.chap_process_challenge_packet(chap):
                         break
 
-                pkts = yield pipe.async_wait_for_pkt(self.timeout)
-                pkts = [pkt["pkt"] for pkt in pkts]
-
                 if not self.chap_challenge_received:
+                    pkts = yield pipe.async_wait_for_pkt(self.timeout)
+                    pkts = [pkt["pkt"] for pkt in pkts]
+
                     continue
 
                 crypto = MSCHAPv2Crypto(
