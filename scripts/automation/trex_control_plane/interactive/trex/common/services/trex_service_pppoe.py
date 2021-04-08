@@ -406,27 +406,23 @@ class ServicePPPOE(Service):
                 # the config request from the server, and subsequent ACK
                 # from the client; while lcp_our_negotiated handles the
                 # config request from the client, and subsequent ack from the server
-                while not(self.lcp_our_negotiated and self.lcp_peer_negotiated):
-                    for pkt in pkts:
-                        lcp = Ether(pkt)
-                        lcp_ret = self.lcp_handle_packet(lcp)
+                for pkt in pkts:
+                    lcp = Ether(pkt)
+                    lcp_ret = self.lcp_handle_packet(lcp)
 
-                    for i in lcp_ret:
-                        yield pipe.async_tx_pkt(i)
-
-                    if self.lcp_our_negotiated and self.lcp_peer_negotiated:
-                        break
-
-                    # wait for response
-                    pkts = yield pipe.async_wait_for_pkt(self.timeout)
-                    pkts = [pkt["pkt"] for pkt in pkts]
+                for i in lcp_ret:
+                    yield pipe.async_tx_pkt(i)
 
                 if self.lcp_our_negotiated and self.lcp_peer_negotiated:
                     self.state = "AUTH"
                     self.reset_state_retries()
+                    continue
+
+                # wait for response
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
+                pkts = [pkt["pkt"] for pkt in pkts]
 
                 continue
-
             elif self.state == "AUTH":
                 if self.handle_state_retries():
                     self.state = "INIT"
@@ -451,19 +447,16 @@ class ServicePPPOE(Service):
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
 
-                while not self.chap_challenge_received:
-                    ret = False 
-
-                    for pkt in pkts:
-                        chap = Ether(pkt)
-                        if self.chap_process_challenge_packet(chap):
-                            break
-
-                    if self.chap_challenge_received:
+                for pkt in pkts:
+                    chap = Ether(pkt)
+                    if self.chap_process_challenge_packet(chap):
                         break
 
-                    pkts = yield pipe.async_wait_for_pkt(self.timeout)
-                    pkts = [pkt["pkt"] for pkt in pkts]
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
+                pkts = [pkt["pkt"] for pkt in pkts]
+
+                if not self.chap_challenge_received:
+                    continue
 
                 crypto = MSCHAPv2Crypto(
                     self.chap_challenge_id,
@@ -532,24 +525,22 @@ class ServicePPPOE(Service):
                 # When the IP address is received and all Nak/Ack messages are
                 # processed, the client is bound
 
-                while not(self.ipcp_our_negotiated and self.ipcp_peer_negotiated):
-                    for pkt in pkts:
-                        ipcp = Ether(pkt)
-                        ipcp_ret = self.ipcp_handle_packet(ipcp)
+                for pkt in pkts:
+                    ipcp = Ether(pkt)
+                    ipcp_ret = self.ipcp_handle_packet(ipcp)
 
-                    for i in ipcp_ret:
-                        yield pipe.async_tx_pkt(i)
-
-                    if self.ipcp_our_negotiated and self.ipcp_peer_negotiated:
-                        break
-
-                    # wait for response
-                    pkts = yield pipe.async_wait_for_pkt(self.timeout)
-                    pkts = [pkt["pkt"] for pkt in pkts]
+                for i in ipcp_ret:
+                    yield pipe.async_tx_pkt(i)
 
                 if self.ipcp_our_negotiated and self.ipcp_peer_negotiated:
                     self.reset_state_retries()
                     self.state = "BOUND"
+                    continue
+
+                # wait for response
+                pkts = yield pipe.async_wait_for_pkt(self.timeout)
+                pkts = [pkt["pkt"] for pkt in pkts]
+
                 continue
             elif self.state == "BOUND":
 
