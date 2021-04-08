@@ -532,7 +532,6 @@ class ServicePPPOE(Service):
                 while True:
                     for pkt in pkts:
                         ipcp = Ether(pkt)
-                        ipcp.show()
                         ipcp_ret = self.ipcp_handle_packet(lcp)
 
                     for i in ipcp_ret:
