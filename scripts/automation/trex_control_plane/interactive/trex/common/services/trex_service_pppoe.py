@@ -681,6 +681,9 @@ class ServicePPPOE(Service):
         return lcp_pkts
 
     def lcp_handle_config_ack(self, lcp):
+        if PPP_LCP_Configure not in conf_req:
+            return None
+
         if lcp[PPP_LCP_Configure].code == PPP_LCP.code.s2i["Configure-Ack"]:
             self.log( "PPPOE: {0} <--- LCP CONF ACK".format(self.mac), level=Service.INFO,)
             self.lcp_our_negotiated = True
