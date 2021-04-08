@@ -248,7 +248,7 @@ class ServicePPPOE(Service):
             if self.state == "INIT":
                 if self.handle_global_retries():
                     break
-                if self.per_state_retries <= 3:
+                if self.per_state_retries <= 2:
                     self.log(
                         "PPPOE {0}: {1} retry {2} ---> PADI".format(
                             self.state, self.mac, self.global_retries
@@ -669,7 +669,7 @@ class ServicePPPOE(Service):
     def handle_lcp(self, lcp_packet):
         lcp_pkts = []
 
-        lcp_handle_config_ack(lcp_packet)
+        self.lcp_handle_config_ack(lcp_packet)
         
         if not self.lcp_our_negotiated:
             self.log( "PPPOE: {0} ---> LCP CONF REQ".format(self.mac), level=Service.INFO,)
