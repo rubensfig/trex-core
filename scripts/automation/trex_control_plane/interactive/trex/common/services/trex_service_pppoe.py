@@ -499,7 +499,7 @@ class ServicePPPOE(Service):
                 for pkt in pkts:
                     chap_success = Ether(pkt)
                     # HACK handles getting the ipcp packet before CHAP success, we can move on
-                    if PPP_IPCP in chap_success or 
+                    if PPP_IPCP in chap_success or \
                         (PPP_CHAP in chap_success and
                          chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]):
                         self.auth_negotiated = True
