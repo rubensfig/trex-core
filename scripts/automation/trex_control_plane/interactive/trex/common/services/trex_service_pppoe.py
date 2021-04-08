@@ -501,9 +501,8 @@ class ServicePPPOE(Service):
                 )
                 for pkt in pkts:
                     chap_success = Ether(pkt)
-                    # HACK handles getting the ipcp packet before CHAP success, we can move on
-                    if PPP_IPCP in chap_success or \
-                        (PPP_CHAP in chap_success and
+
+                    if (PPP_CHAP in chap_success and
                          chap_success[PPP_CHAP].code == PPP_CHAP.code.s2i["Success"]):
                         self.auth_negotiated = True
                         break
@@ -533,12 +532,13 @@ class ServicePPPOE(Service):
                 while True:
                     for pkt in pkts:
                         ipcp = Ether(pkt)
+                        ipcp.show()
                         ipcp_ret = self.ipcp_handle_packet(lcp)
 
                     for i in ipcp_ret:
                         yield pipe.async_tx_pkt(i)
 
-                    if  self.ipcp_our_negotiated and self.ipcp_peer_negotiated:
+                    if self.ipcp_our_negotiated and self.ipcp_peer_negotiated:
                         break
 
                     # wait for response
