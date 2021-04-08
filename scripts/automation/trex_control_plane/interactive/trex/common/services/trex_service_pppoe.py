@@ -673,10 +673,14 @@ class ServicePPPOE(Service):
         
         if not self.lcp_our_negotiated:
             self.log( "PPPOE: {0} ---> LCP CONF REQ".format(self.mac), level=Service.INFO,)
-            lcp_pkts += self.lcp_process_remote_negotiate()
+            rt = self.lcp_process_remote_negotiate()
+            if rt:
+                lcp_pkts += rt
         
         if not self.lcp_peer_negotiated:
-            lcp_pkts += self.lcp_process_peer_negotiate(lcp_packet)
+            rt += self.lcp_process_peer_negotiate(lcp_packet)
+            if rt:
+                lcp_pkts += rt
 
         return lcp_pkts
 
