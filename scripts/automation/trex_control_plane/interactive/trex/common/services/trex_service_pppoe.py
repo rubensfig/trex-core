@@ -406,13 +406,16 @@ class ServicePPPOE(Service):
                 # the config request from the server, and subsequent ACK
                 # from the client; while lcp_our_negotiated handles the
                 # config request from the client, and subsequent ack from the server
-                while not (self.lcp_our_negotiated and self.lcp_peer_negotiated):
+                while True:
                     for pkt in pkts:
                         lcp = Ether(pkt)
                         lcp_ret = self.lcp_handle_packet(lcp)
 
                     for i in lcp_ret:
                         yield pipe.async_tx_pkt(i)
+
+                    if self.lcp_our_negotiated and self.lcp_peer_negotiated:
+                        break
 
                     # wait for response
                     pkts = yield pipe.async_wait_for_pkt(self.timeout)
