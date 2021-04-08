@@ -406,7 +406,7 @@ class ServicePPPOE(Service):
                 # the config request from the server, and subsequent ACK
                 # from the client; while lcp_our_negotiated handles the
                 # config request from the client, and subsequent ack from the server
-                while True:
+                while not(self.lcp_our_negotiated and self.lcp_peer_negotiated):
                     for pkt in pkts:
                         lcp = Ether(pkt)
                         lcp_ret = self.lcp_handle_packet(lcp)
@@ -451,7 +451,7 @@ class ServicePPPOE(Service):
 
                 self.log("PPPOE: {0} <--- CHAP ".format(self.mac), level=Service.INFO)
 
-                while True:
+                while not self.chap_challenge_received:
                     ret = False 
 
                     for pkt in pkts:
@@ -532,7 +532,7 @@ class ServicePPPOE(Service):
                 # When the IP address is received and all Nak/Ack messages are
                 # processed, the client is bound
 
-                while True:
+                while not(self.ipcp_our_negotiated and self.ipcp_peer_negotiated):
                     for pkt in pkts:
                         ipcp = Ether(pkt)
                         ipcp_ret = self.ipcp_handle_packet(ipcp)
