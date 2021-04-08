@@ -458,33 +458,7 @@ class ServicePPPOE(Service):
 
                     continue
 
-                crypto = MSCHAPv2Crypto(
-                    self.chap_challenge_id,
-                    self.chap_value,
-                    self.chap_value,
-                    self.username,
-                    self.password,
-                )  # USER DEFAULTS = testing/ password
-                mschap_pkt = MSCHAPv2Packet(2)
-                mschap_pkt.ms_chap_id = self.chap_challenge_id
-                mschap_pkt.challenge = self.chap_value
-                mschap_pkt.response = crypto.challenge_response()
-                mschap_pkt.name = self.username
-
-                # send the response
-                self.log(
-                    "PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac),
-                    level=Service.INFO,
-                )
-                chap_resp = (
-                    Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
-                    / Dot1Q(vlan=self.s_tag)
-                    / Dot1Q(vlan=self.c_tag)
-                    / PPPoE(sessionid=self.session_id)
-                    / PPP(proto="Challenge Handshake Authentication Protocol")
-                    / PPP_CHAP_ChallengeResponse(_pkt=mschap_pkt.__bytes__())
-                )
-
+                chap_resp = self.chap_response()
                 yield pipe.async_tx_pkt(chap_resp)
 
                 # wait for response
@@ -607,6 +581,36 @@ class ServicePPPOE(Service):
 
             self.chap_challenge_received = True
             return True
+
+    def chap_response(self):
+        crypto = MSCHAPv2Crypto(
+            self.chap_challenge_id,
+            self.chap_value,
+            self.chap_value,
+            self.username,
+            self.password,
+        )  # USER DEFAULTS = testing/ password
+        mschap_pkt = MSCHAPv2Packet(2)
+        mschap_pkt.ms_chap_id = self.chap_challenge_id
+        mschap_pkt.challenge = self.chap_value
+        mschap_pkt.response = crypto.challenge_response()
+        mschap_pkt.name = self.username
+
+        # send the response
+        self.log(
+            "PPPOE: {0} ---> CHAP CHALLENGE RESPONSE ".format(self.mac),
+            level=Service.INFO,
+        )
+        chap_resp = (
+            Ether(src=self.get_mac_bytes(), dst=self.ac_mac)
+            / Dot1Q(vlan=self.s_tag)
+            / Dot1Q(vlan=self.c_tag)
+            / PPPoE(sessionid=self.session_id)
+            / PPP(proto="Challenge Handshake Authentication Protocol")
+            / PPP_CHAP_ChallengeResponse(_pkt=mschap_pkt.__bytes__())
+        )
+
+        return chap_resp
 
     def lcp_handle_packet(self, lcp_packet):
         lcp_pkts = []
