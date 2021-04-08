@@ -703,7 +703,7 @@ class ServicePPPOE(Service):
                     ],
                 )
             )
-            return lcp_ret
+            return lcp_req
 
     def lcp_process_peer_negotiate(self, conf_req):
         lcp = conf_req
