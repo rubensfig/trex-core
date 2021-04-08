@@ -532,7 +532,7 @@ class ServicePPPOE(Service):
                 while True:
                     for pkt in pkts:
                         ipcp = Ether(pkt)
-                        ipcp_ret = self.ipcp_handle_packet(lcp)
+                        ipcp_ret = self.ipcp_handle_packet(ipcp)
 
                     for i in ipcp_ret:
                         yield pipe.async_tx_pkt(i)
